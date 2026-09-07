@@ -28,7 +28,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       <motion.div
         style={{
           scale,
-          top: `calc(10% + ${index * 20}px)`,
+          top: `calc(10% + ${index * 30}px)`,
         }}
         className="w-full h-full bg-[#0C0C0C] border-2 border-[#D7E2EA] rounded-[36px] sm:rounded-[48px] md:rounded-[60px] p-6 sm:p-8 md:p-12 flex flex-col justify-between shadow-2xl relative overflow-hidden group transition-all duration-300"
       >
