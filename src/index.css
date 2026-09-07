@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root,
+main {
+  background: #0C0C0C;
+  color: #D7E2EA;
+  font-family: 'Kanit', sans-serif;
+  overflow-x: clip;
+  min-height: 100%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0C0C0C;
+}
+::-webkit-scrollbar-thumb {
+  background: #262A30;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7621B0;
+}
+
+/* Typography styles */
+.hero-heading {
+  background: linear-gradient(180deg, #646973 0%, #BBCCD7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-subtle {
+  background: linear-gradient(180deg, #FFFFFF 0%, #8E9AA4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-accent {
+  background: linear-gradient(123deg, #B600A8 0%, #7621B0 50%, #BE4C00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Contact Button Custom Styling */
+.contact-btn-custom {
+  background: linear-gradient(123deg, #18011F 7%, #B600A8 37%, #7621B0 72%, #BE4C00 100%);
+  box-shadow: 0px 4px 4px rgba(181, 1, 167, 0.25), inset 4px 4px 12px #7721B1;
+  outline: 2px solid white;
+  outline-offset: -3px;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.contact-btn-custom:hover {
+  box-shadow: 0px 8px 24px rgba(182, 0, 168, 0.5), inset 4px 4px 16px #9d38e0;
+  transform: translateY(-2px) scale(1.02);
+}
+
+.contact-btn-custom:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Glass & Border Utilities */
+.editorial-border-b {
+  border-bottom: 1px solid rgba(215, 226, 234, 0.12);
+}
+
+.editorial-border-t {
+  border-top: 1px solid rgba(215, 226, 234, 0.12);
+}
+
+.editorial-border-all {
+  border: 1px solid rgba(215, 226, 234, 0.15);
+}
+
+.editorial-grid-bg {
+  background-size: 60px 60px;
+  background-image: 
+    linear-gradient(to right, rgba(215, 226, 234, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(215, 226, 234, 0.03) 1px, transparent 1px);
+}
+
+/* Noise texture overlay for high-end cinematic feel */
+.film-grain {
+  background-image: radial-gradient(rgba(215, 226, 234, 0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Glowing Nodes */
+.glow-accent {
+  filter: drop-shadow(0 0 12px rgba(118, 33, 176, 0.6));
+}
+
+.glow-cyan {
+  filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.6));
+}
+
+/* Hide scrollbar for clean UI where needed */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
