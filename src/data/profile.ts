@@ -22,9 +22,9 @@ export const PROFILE = {
     { label: "Interface Standard", value: "Sub-16ms Framerate" }
   ],
   socials: {
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
+    github: "https://github.com/Vivekanand-s-naik",
+    linkedin: "https://www.linkedin.com/in/vivekanand-s-naik-codersparadise/",
     twitter: "https://x.com",
-    email: "vivek.architect.ai@gmail.com"
+    email: "vivekanandnaik333@gmail.com"
   }
 };
