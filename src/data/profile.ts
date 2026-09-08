@@ -24,7 +24,7 @@ export const PROFILE = {
   socials: {
     github: "https://github.com/Vivekanand-s-naik",
     linkedin: "https://www.linkedin.com/in/vivekanand-s-naik-codersparadise/",
-    twitter: "https://x.com",
+    twitter: "https://x.com/itzz_vivek_nk",
     email: "vivekanandnaik333@gmail.com"
   }
 };
