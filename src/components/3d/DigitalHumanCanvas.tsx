@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useIsMobile, usePrefersReducedMotion } from '../../hooks/useMediaQuery';
 import { loadDigitalHuman } from './digitalHuman/loadCharacterModel';
-import type { DigitalHumanRig } from './digitalHuman/rig';
+import type { DigitalHumanRig, FingerBones } from './digitalHuman/rig';
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -131,13 +131,18 @@ export const DigitalHumanCanvas: React.FC = () => {
       camZ: 3.15,
       camLookX: 0.55,
       rootX: 0.62,
+      // test with this
+      // rootY: -0.35,
     };
 
     const mouse = { x: 0, y: 0 };
     const eyeRot = { x: 0, y: 0 };
     const headRot = { x: 0, y: -0.1 };
     const neckRot = { x: 0, y: 0 };
+    const shoulderRot = { x: 0, y: 0 };
     const spineRot = { x: 0, y: 0 };
+    const hipsRot = { x: 0, y: 0 };
+    const armLag = { leftX: 0, leftZ: 0, rightX: 0, rightZ: 0 };
     const bodyPos = { x: 0, y: 0 };
     const corePos = { x: 0, y: 0 };
 
@@ -228,28 +233,47 @@ export const DigitalHumanCanvas: React.FC = () => {
         headRot.x = lerp(headRot.x, targetHeadX, 1 - Math.exp(-dt * 4.5));
 
         // 3. Neck bridges chest and head
-        const targetNeckY = headRot.y * 0.4;
+        const targetNeckY = headRot.y * 0.38;
         const targetNeckX = headRot.x * 0.35;
         neckRot.y = lerp(neckRot.y, targetNeckY, 1 - Math.exp(-dt * 3.6));
         neckRot.x = lerp(neckRot.x, targetNeckX, 1 - Math.exp(-dt * 3.6));
 
-        // 4. Upper body / spine has inertial resistance
-        const targetSpineY = reduced ? 0 : mouse.x * 0.08;
-        const targetSpineX = reduced ? 0 : -mouse.y * 0.035;
+        // 4. Shoulders follow cursor subtly with slight inertial lag
+        const targetShoulderY = reduced ? 0 : mouse.x * 0.06;
+        const targetShoulderX = reduced ? 0 : -mouse.y * 0.025;
+        shoulderRot.y = lerp(shoulderRot.y, targetShoulderY, 1 - Math.exp(-dt * 2.8));
+        shoulderRot.x = lerp(shoulderRot.x, targetShoulderX, 1 - Math.exp(-dt * 2.8));
+
+        // 5. Upper body / spine has inertial resistance
+        const targetSpineY = reduced ? 0 : mouse.x * 0.055;
+        const targetSpineX = reduced ? 0 : -mouse.y * 0.022;
         spineRot.y = lerp(spineRot.y, targetSpineY, 1 - Math.exp(-dt * 2.2));
         spineRot.x = lerp(spineRot.x, targetSpineX, 1 - Math.exp(-dt * 2.2));
 
-        // 5. Body parallax & organic idle breathing
+        // 6. Hips carry minimal grounded reaction
+        const targetHipsY = reduced ? 0 : mouse.x * 0.018;
+        hipsRot.y = lerp(hipsRot.y, targetHipsY, 1 - Math.exp(-dt * 1.6));
+
+        // 7. Arms passive follow-through lag
+        armLag.leftZ = lerp(armLag.leftZ, spineRot.y * 0.25, 1 - Math.exp(-dt * 2.5));
+        armLag.leftX = lerp(armLag.leftX, -spineRot.x * 0.2, 1 - Math.exp(-dt * 2.5));
+        armLag.rightZ = lerp(armLag.rightZ, -spineRot.y * 0.25, 1 - Math.exp(-dt * 2.5));
+        armLag.rightX = lerp(armLag.rightX, -spineRot.x * 0.2, 1 - Math.exp(-dt * 2.5));
+
+        // 8. Body parallax & organic idle breathing
         const targetBodyX = reduced ? 0 : mouse.x * 0.045;
         const targetBodyY = reduced ? 0 : mouse.y * 0.02;
         bodyPos.x = lerp(bodyPos.x, targetBodyX, 1 - Math.exp(-dt * 1.6));
         bodyPos.y = lerp(bodyPos.y, targetBodyY, 1 - Math.exp(-dt * 1.6));
 
-        const breathe = reduced ? 0 : Math.sin(t * 1.15) * 0.012;
-        const chestExpand = reduced ? 0 : Math.sin(t * 1.15) * 0.018;
-        const sway = reduced ? 0 : Math.sin(t * 0.5) * 0.008;
+        // Respiration & natural micro-motion harmonics
+        const breathe = reduced ? 0 : Math.sin(t * 1.15) * 0.012 + Math.sin(t * 2.3) * 0.002;
+        const chestExpand = reduced ? 0 : Math.sin(t * 1.15 + 0.15) * 0.016;
+        const sway = reduced ? 0 : Math.sin(t * 0.45) * 0.006;
+        const microWeight = reduced ? 0 : Math.cos(t * 0.35) * 0.004;
+        const fingerBreathe = reduced ? 0 : Math.sin(t * 1.15 + 0.3) * 0.015;
 
-        // Apply to bones relative to their rest rotations
+        // Helper to retrieve bone rest rotation
         const getRest = (node: THREE.Object3D | null) => {
           if (!node || !rig) return { x: 0, y: 0, z: 0 };
           const r = rig.restRotations.get(node);
@@ -257,30 +281,215 @@ export const DigitalHumanCanvas: React.FC = () => {
         };
 
         // Root / Parallax
-        rig.root.position.x = rest.rootX + bodyPos.x + sway * 0.3;
-        rig.root.position.y = bodyPos.y;
+        rig.root.position.x = rest.rootX + bodyPos.x + sway * 0.25;
+        // test 
+        rig.root.position.y = bodyPos.y + breathe * 0.15;
+        // rig.root.position.y = rest.rootY + bodyPos.y + breathe * 0.15;
         rig.root.rotation.y = scrollProgress * -0.15;
 
-        // Spine / Torso
-        if (rig.spine2) {
-          const r = getRest(rig.spine2);
-          rig.spine2.rotation.set(r.x + spineRot.x + chestExpand * 0.6, r.y + spineRot.y, r.z);
+        // ==========================================
+        // 1. HIPS & LOWER BODY (Relaxed standing stance)
+        // ==========================================
+        if (rig.hips) {
+          const r = getRest(rig.hips);
+          rig.hips.rotation.set(
+            r.x - 0.015 + microWeight * 0.5,
+            r.y + hipsRot.y + sway * 0.4,
+            r.z + 0.012 + microWeight
+          );
+        }
+
+        // Left Leg: Inward natural stance, soft unlocked knee, grounded foot
+        if (rig.leftUpLeg) {
+          const r = getRest(rig.leftUpLeg);
+          rig.leftUpLeg.rotation.set(
+            r.x + 0.02 + microWeight * 0.3,
+            r.y - 0.015,
+            r.z + 0.11
+          );
+        }
+        if (rig.leftLeg) {
+          const r = getRest(rig.leftLeg);
+          rig.leftLeg.rotation.set(r.x + 0.08, r.y, r.z);
+        }
+        if (rig.leftFoot) {
+          const r = getRest(rig.leftFoot);
+          rig.leftFoot.rotation.set(r.x - 0.08, r.y + 0.02, r.z);
+        }
+
+        // Right Leg: Carrying relaxed weight, natural foot spacing
+        if (rig.rightUpLeg) {
+          const r = getRest(rig.rightUpLeg);
+          rig.rightUpLeg.rotation.set(
+            r.x - 0.01 - microWeight * 0.3,
+            r.y + 0.015,
+            r.z - 0.09
+          );
+        }
+        if (rig.rightLeg) {
+          const r = getRest(rig.rightLeg);
+          rig.rightLeg.rotation.set(r.x + 0.05, r.y, r.z);
+        }
+        if (rig.rightFoot) {
+          const r = getRest(rig.rightFoot);
+          rig.rightFoot.rotation.set(r.x - 0.05, r.y - 0.02, r.z);
+        }
+
+        // ==========================================
+        // 2. SPINE & TORSO (Natural S-curve posture)
+        // ==========================================
+        if (rig.spine) {
+          const r = getRest(rig.spine);
+          rig.spine.rotation.set(
+            r.x + 0.025 + spineRot.x * 0.3,
+            r.y + spineRot.y * 0.3 - 0.008,
+            r.z - 0.008 + microWeight * 0.3
+          );
         }
         if (rig.spine1) {
           const r = getRest(rig.spine1);
-          rig.spine1.rotation.set(r.x + spineRot.x * 0.5 + chestExpand * 0.3, r.y + spineRot.y * 0.5, r.z);
+          rig.spine1.rotation.set(
+            r.x - 0.012 + spineRot.x * 0.5 + chestExpand * 0.35,
+            r.y + spineRot.y * 0.5 - 0.005,
+            r.z + 0.005
+          );
+        }
+        if (rig.spine2) {
+          const r = getRest(rig.spine2);
+          rig.spine2.rotation.set(
+            r.x - 0.02 + spineRot.x + chestExpand * 0.65,
+            r.y + spineRot.y - 0.01,
+            r.z + sway * 0.2
+          );
         }
 
-        // Shoulders: Subtle breathing displacement and relaxed poise
+        // ==========================================
+        // 3. SHOULDERS & ARMS (Naturally hanging beside body)
+        // ==========================================
+        // Shoulders: Relaxed downward poise + breathing rise
         if (rig.leftShoulder) {
           const r = getRest(rig.leftShoulder);
-          rig.leftShoulder.rotation.set(r.x + spineRot.x * 0.3, r.y + spineRot.y * 0.3, r.z + breathe * 0.4);
+          rig.leftShoulder.rotation.set(
+            r.x - 0.05 + shoulderRot.x * 0.3,
+            r.y + shoulderRot.y * 0.3 + 0.02,
+            r.z - 0.06 + breathe * 0.4
+          );
         }
         if (rig.rightShoulder) {
           const r = getRest(rig.rightShoulder);
-          rig.rightShoulder.rotation.set(r.x + spineRot.x * 0.3, r.y + spineRot.y * 0.3, r.z - breathe * 0.4);
+          rig.rightShoulder.rotation.set(
+            r.x - 0.05 + shoulderRot.x * 0.3,
+            r.y + shoulderRot.y * 0.3 - 0.02,
+            r.z + 0.06 - breathe * 0.4
+          );
         }
 
+        // Left Arm: Naturally hanging alongside torso, slight forward angle, subtle elbow relaxation
+        if (rig.leftArm) {
+          const r = getRest(rig.leftArm);
+          rig.leftArm.rotation.set(
+            r.x + 0.50 + armLag.leftX + breathe * 0.15,
+            r.y + 0.28 + shoulderRot.y * 0.2,
+            r.z - 0.18 + armLag.leftZ + breathe * 0.2
+          );
+        }
+        if (rig.leftForeArm) {
+          const r = getRest(rig.leftForeArm);
+          rig.leftForeArm.rotation.set(
+            r.x - 0.12 + armLag.leftX * 0.5,
+            r.y + 0.12,
+            r.z - 0.08
+          );
+        }
+        if (rig.leftHand) {
+          const r = getRest(rig.leftHand);
+          rig.leftHand.rotation.set(
+            r.x + 0.02,
+            r.y + 0.08,
+            r.z - 0.04
+          );
+        }
+
+        // Right Arm: Naturally hanging alongside torso, slight forward angle, subtle elbow relaxation
+        if (rig.rightArm) {
+          const r = getRest(rig.rightArm);
+          rig.rightArm.rotation.set(
+            r.x + 0.50 + armLag.rightX + breathe * 0.15,
+            r.y - 0.28 + shoulderRot.y * 0.2,
+            r.z + 0.18 + armLag.rightZ - breathe * 0.2
+          );
+        }
+        if (rig.rightForeArm) {
+          const r = getRest(rig.rightForeArm);
+          rig.rightForeArm.rotation.set(
+            r.x - 0.12 + armLag.rightX * 0.5,
+            r.y - 0.12,
+            r.z + 0.08
+          );
+        }
+        if (rig.rightHand) {
+          const r = getRest(rig.rightHand);
+          rig.rightHand.rotation.set(
+            r.x + 0.02,
+            r.y - 0.08,
+            r.z + 0.04
+          );
+        }
+
+        // ==========================================
+        // 4. HANDS & FINGERS (Believable relaxed finger cascade)
+        // ==========================================
+        const applyFingerPose = (fingers: FingerBones, isLeft: boolean) => {
+          const sign = isLeft ? 1 : -1;
+          const fCur = fingerBreathe;
+
+          // Thumb
+          fingers.thumb.forEach((bone, idx) => {
+            const r = getRest(bone);
+            if (idx === 0) {
+              bone.rotation.set(r.x + 0.1 + fCur * 0.4, r.y + sign * 0.04, r.z + sign * 0.12);
+            } else if (idx === 1) {
+              bone.rotation.set(r.x + 0.14 + fCur * 0.5, r.y, r.z + sign * -0.05);
+            } else {
+              bone.rotation.set(r.x + 0.1 + fCur * 0.3, r.y, r.z);
+            }
+          });
+
+          // Index
+          fingers.index.forEach((bone, idx) => {
+            const r = getRest(bone);
+            const curl = (idx === 0 ? 0.22 : idx === 1 ? 0.28 : 0.18) + fCur;
+            bone.rotation.set(r.x + curl, r.y, r.z + sign * (idx === 0 ? 0.03 : 0));
+          });
+
+          // Middle
+          fingers.middle.forEach((bone, idx) => {
+            const r = getRest(bone);
+            const curl = (idx === 0 ? 0.26 : idx === 1 ? 0.32 : 0.22) + fCur;
+            bone.rotation.set(r.x + curl, r.y, r.z);
+          });
+
+          // Ring
+          fingers.ring.forEach((bone, idx) => {
+            const r = getRest(bone);
+            const curl = (idx === 0 ? 0.28 : idx === 1 ? 0.35 : 0.25) + fCur;
+            bone.rotation.set(r.x + curl, r.y, r.z + sign * (idx === 0 ? -0.03 : 0));
+          });
+
+          // Pinky
+          fingers.pinky.forEach((bone, idx) => {
+            const r = getRest(bone);
+            const curl = (idx === 0 ? 0.32 : idx === 1 ? 0.4 : 0.28) + fCur;
+            bone.rotation.set(r.x + curl, r.y, r.z + sign * (idx === 0 ? -0.06 : 0));
+          });
+        };
+
+        if (rig.leftFingers) applyFingerPose(rig.leftFingers, true);
+        if (rig.rightFingers) applyFingerPose(rig.rightFingers, false);
+
+        // ==========================================
+        // 5. NECK, HEAD & EYES (Intact & enhanced)
+        // ==========================================
         // Neck
         if (rig.neck) {
           const r = getRest(rig.neck);

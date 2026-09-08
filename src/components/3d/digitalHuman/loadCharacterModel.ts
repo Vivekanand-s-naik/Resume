@@ -37,10 +37,23 @@ function bindGltf(scene: THREE.Group, animations: THREE.AnimationClip[]): Digita
   const bones = resolveBoneMap(scene);
   const restRotations = new Map<THREE.Object3D, THREE.Euler>();
 
-  // Store rest rotations of all resolved bones
-  Object.values(bones).forEach((bone) => {
-    if (bone) {
-      restRotations.set(bone, bone.rotation.clone());
+  // Store rest rotations of all resolved bones and fingers
+  const registerRest = (node: THREE.Object3D | null | undefined) => {
+    if (node && 'rotation' in node) {
+      restRotations.set(node, node.rotation.clone());
+    }
+  };
+
+  Object.values(bones).forEach((item) => {
+    if (!item) return;
+    if (Array.isArray(item)) {
+      item.forEach((node) => registerRest(node));
+    } else if ('thumb' in item) {
+      // FingerBones
+      const fb = item as typeof bones.leftFingers;
+      [...fb.thumb, ...fb.index, ...fb.middle, ...fb.ring, ...fb.pinky].forEach((n) => registerRest(n));
+    } else if (item instanceof THREE.Object3D) {
+      registerRest(item);
     }
   });
 
@@ -175,6 +188,19 @@ function bindGltf(scene: THREE.Group, animations: THREE.AnimationClip[]): Digita
     rightArm: bones.rightArm ?? null,
     leftForeArm: bones.leftForeArm ?? null,
     rightForeArm: bones.rightForeArm ?? null,
+    leftHand: bones.leftHand ?? null,
+    rightHand: bones.rightHand ?? null,
+    leftUpLeg: bones.leftUpLeg ?? null,
+    rightUpLeg: bones.rightUpLeg ?? null,
+    leftLeg: bones.leftLeg ?? null,
+    rightLeg: bones.rightLeg ?? null,
+    leftFoot: bones.leftFoot ?? null,
+    rightFoot: bones.rightFoot ?? null,
+    leftToeBase: bones.leftToeBase ?? null,
+    rightToeBase: bones.rightToeBase ?? null,
+    leftFingers: bones.leftFingers,
+    rightFingers: bones.rightFingers,
+    allFingers: bones.allFingers,
     headMesh,
     eyeMeshes,
     aiCore,
