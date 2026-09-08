@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { useIsMobile, usePrefersReducedMotion } from '../../hooks/useMediaQuery';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 import { loadDigitalHuman } from './digitalHuman/loadCharacterModel';
 import type { DigitalHumanRig, FingerBones } from './digitalHuman/rig';
 
@@ -11,8 +11,7 @@ function lerp(a: number, b: number, t: number) {
 export const DigitalHumanCanvas: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const prefersReducedMotion = usePrefersReducedMotion();
-
+  const prefersReducedMotion = false;
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -132,7 +131,7 @@ export const DigitalHumanCanvas: React.FC = () => {
       camLookX: 0.55,
       rootX: 0.62,
       // test with this
-      // rootY: -0.35,
+      rootY: -0.47,
     };
 
     const mouse = { x: 0, y: 0 };
@@ -283,8 +282,8 @@ export const DigitalHumanCanvas: React.FC = () => {
         // Root / Parallax
         rig.root.position.x = rest.rootX + bodyPos.x + sway * 0.25;
         // test 
-        rig.root.position.y = bodyPos.y + breathe * 0.15;
-        // rig.root.position.y = rest.rootY + bodyPos.y + breathe * 0.15;
+        // rig.root.position.y = bodyPos.y + breathe * 0.15;
+        rig.root.position.y = rest.rootY + bodyPos.y + breathe * 0.15;
         rig.root.rotation.y = scrollProgress * -0.15;
 
         // ==========================================
