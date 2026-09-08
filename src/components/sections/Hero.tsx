@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { PROFILE } from '../../data/profile';
-import { IntelligenceCore } from '../3d/IntelligenceCore';
+import { DigitalHumanCanvas } from '../3d/DigitalHumanCanvas';
 import { ContactButton } from '../ui/ContactButton';
 import { ArrowDown } from 'lucide-react';
 
@@ -15,18 +15,14 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
   };
 
   return (
-    <section className="relative min-h-screen w-full flex flex-col justify-between pt-24 pb-8 md:pt-28 md:pb-12 px-4 sm:px-6 md:px-10 overflow-hidden bg-[#0C0C0C]">
-      {/* 3D WebGL Intelligence Core Canvas */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.85, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 1.4, ease: [0.25, 0.1, 0.25, 1] }}
-        className="absolute inset-0 z-0 pointer-events-none"
-      >
-        <IntelligenceCore />
-      </motion.div>
+    <section className="relative min-h-[100svh] w-full flex flex-col justify-between pt-24 pb-8 md:pt-28 md:pb-12 px-4 sm:px-6 md:px-10 overflow-hidden bg-[#0C0C0C]">
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <DigitalHumanCanvas />
+      </div>
 
-      {/* Top Tagline & Discipline Status Bar */}
+      {/* Keep type readable without covering the character */}
+      <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-r from-[#0C0C0C] via-[#0C0C0C]/75 to-transparent md:via-[#0C0C0C]/45 md:to-transparent" />
+
       <div className="relative z-10 max-w-[1700px] mx-auto w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -55,35 +51,36 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
         </motion.div>
       </div>
 
-      {/* Massive Architectural Typography Heading */}
-      <div className="relative z-10 max-w-[1700px] mx-auto w-full my-auto py-8 sm:py-12 flex flex-col items-start justify-center">
+      <div className="relative z-10 max-w-[1700px] mx-auto w-full my-auto py-6 sm:py-10 flex flex-col items-start justify-center md:max-w-[46%] md:mr-auto">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.0, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
           className="w-full select-none"
         >
-          <h1 className="hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap text-[13.5vw] sm:text-[14.5vw] md:text-[15.5vw] lg:text-[17vw]">
-            {PROFILE.heroHeadingPrefix} {PROFILE.heroHeadingName}
+          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#8E9AA4] mb-4">
+            Digital Human Interface
+          </p>
+          <h1 className="hero-heading font-black uppercase tracking-tight leading-[0.9] text-5xl sm:text-6xl md:text-7xl lg:text-[5.75rem]">
+            {PROFILE.heroHeadingPrefix}
+            <br />
+            {PROFILE.heroHeadingName}
           </h1>
         </motion.div>
 
-        {/* Hero Supporting Copy */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="mt-4 sm:mt-6 max-w-2xl"
+          className="mt-5 sm:mt-7 max-w-xl"
         >
-          <p className="text-lg sm:text-xl md:text-2xl text-[#D7E2EA] font-light leading-relaxed">
+          <p className="text-base sm:text-xl md:text-2xl text-[#D7E2EA] font-light leading-relaxed">
             {PROFILE.heroTagline}
           </p>
         </motion.div>
       </div>
 
-      {/* Hero Bottom Bar: CTA & Scroll Cue */}
       <div className="relative z-10 max-w-[1700px] mx-auto w-full flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
-        {/* Contact CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -92,7 +89,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
           <ContactButton label="Let's Talk" onClick={onOpenContact} />
         </motion.div>
 
-        {/* Interactive Scroll Indicator */}
         <motion.button
           onClick={scrollToWork}
           initial={{ opacity: 0 }}

@@ -21,8 +21,7 @@ function makePhysical(
 }
 
 /**
- * Stylized editorial figure: ~80% human / 20% technical.
- * Hierarchy matches the GLB bone contract so gaze/idle controllers stay unchanged.
+ * Stylized editorial figure: ~80% human / 20% technical fallback.
  */
 export function createProceduralEngineer(quality: CharacterQuality): DigitalHumanRig {
   const hi = quality === 'high';
@@ -174,11 +173,13 @@ export function createProceduralEngineer(quality: CharacterQuality): DigitalHuma
   shoulders.position.y = 0.48;
   torso.add(shoulders);
 
-  const makeArm = (side: number) => {
-    const g = new THREE.Group();
-    g.position.set(side * 0.26, 0.02, 0);
-    g.rotation.z = side * 0.16;
-    g.rotation.x = 0.1 + (side > 0 ? 0.08 : 0);
+  const leftArmGroup = new THREE.Group();
+  const rightArmGroup = new THREE.Group();
+
+  const makeArm = (side: number, armGroup: THREE.Group) => {
+    armGroup.position.set(side * 0.26, 0.02, 0);
+    armGroup.rotation.z = side * 0.16;
+    armGroup.rotation.x = 0.1 + (side > 0 ? 0.08 : 0);
     const upper = new THREE.Mesh(trackGeo(new THREE.CapsuleGeometry(0.055, 0.26, 6, segs)), cloth);
     upper.position.y = -0.16;
     const forearm = new THREE.Mesh(trackGeo(new THREE.CapsuleGeometry(0.045, 0.24, 6, segs)), cloth);
@@ -186,14 +187,14 @@ export function createProceduralEngineer(quality: CharacterQuality): DigitalHuma
     forearm.rotation.x = -0.35;
     const hand = new THREE.Mesh(trackGeo(new THREE.SphereGeometry(0.048, sphereSegs, sphereSegs)), skin);
     hand.position.set(side * 0.02, -0.58, 0.08);
-    g.add(upper, forearm, hand);
-    return g;
+    armGroup.add(upper, forearm, hand);
+    return armGroup;
   };
-  shoulders.add(makeArm(-1), makeArm(1));
+  shoulders.add(makeArm(-1, leftArmGroup), makeArm(1, rightArmGroup));
 
-  const neck = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.055, 0.068, 0.1, segs)), skin);
-  neck.position.y = 0.12;
-  shoulders.add(neck);
+  const neckMesh = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.055, 0.068, 0.1, segs)), skin);
+  neckMesh.position.y = 0.12;
+  shoulders.add(neckMesh);
 
   const collar = new THREE.Mesh(trackGeo(new THREE.TorusGeometry(0.085, 0.012, 8, segs)), accent);
   collar.rotation.x = Math.PI / 2.15;
@@ -318,18 +319,33 @@ export function createProceduralEngineer(quality: CharacterQuality): DigitalHuma
     }
   });
 
+  const restRotations = new Map<THREE.Object3D, THREE.Euler>();
+  [head, torso, shoulders, pelvis, leftArmGroup, rightArmGroup, leftEye, rightEye].forEach((obj) => {
+    restRotations.set(obj, obj.rotation.clone());
+  });
+
   return {
     root,
     body,
-    torso,
-    shoulders,
+    hips: pelvis,
+    spine: torso,
+    spine1: torso,
+    spine2: torso,
+    neck: neckMesh,
     head,
     leftEye,
     rightEye,
-    leftLid,
-    rightLid,
+    leftShoulder: shoulders,
+    rightShoulder: shoulders,
+    leftArm: leftArmGroup,
+    rightArm: rightArmGroup,
+    leftForeArm: null,
+    rightForeArm: null,
+    headMesh: skull,
+    eyeMeshes: [leftEye.children[0] as THREE.Mesh, rightEye.children[0] as THREE.Mesh],
     aiCore,
     mixer: null,
+    restRotations,
     source: 'procedural',
     dispose: () => {
       disposables.forEach((g) => g.dispose());

@@ -22,21 +22,23 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onSelectProject,
 }) => {
   const scale = useTransform(progress, range, [1, targetScale]);
+  const stackOffset = index * 28;
 
   return (
-    <div className="sticky top-20 sm:top-24 md:top-28 h-[85vh] flex items-center justify-center">
+    <div
+      className="sticky"
+      style={{ top: `calc(5.5rem + ${stackOffset}px)` }}
+    >
       <motion.div
         style={{
           scale,
-          top: `calc(10% + ${index * 30}px)`,
+          transformOrigin: 'center top',
         }}
-        className="w-full h-full bg-[#0C0C0C] border-2 border-[#D7E2EA] rounded-[36px] sm:rounded-[48px] md:rounded-[60px] p-6 sm:p-8 md:p-12 flex flex-col justify-between shadow-2xl relative overflow-hidden group transition-all duration-300"
+        className="w-full max-h-[calc(100svh-7.25rem)] bg-[#0C0C0C] border-2 border-[#D7E2EA] rounded-[36px] sm:rounded-[48px] md:rounded-[60px] p-5 sm:p-7 md:p-9 flex flex-col gap-4 sm:gap-5 shadow-2xl relative overflow-hidden group transition-all duration-300"
       >
-        {/* Ambient Subtle Gradient Glow */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#7621B0]/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Card Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 sm:pb-6 border-b border-[#D7E2EA]/20 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#D7E2EA]/20 gap-4 shrink-0">
           <div className="flex items-center gap-4">
             <span className="text-3xl sm:text-4xl md:text-5xl font-black font-mono text-[#00F0FF]">
               {project.number}
@@ -66,11 +68,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
         </div>
 
-        {/* Card Body: Responsive Image Composition (40% Left 2 Stacked / 60% Right 1 Large) */}
-        <div className="my-auto py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 h-[50vh] sm:h-[55vh] items-stretch">
-          {/* Left Column (40%): 2 Stacked Technical Wireframes */}
-          <div className="hidden sm:flex lg:col-span-5 flex-col gap-4 h-full">
-            <div className="relative flex-1 rounded-[24px] sm:rounded-[32px] overflow-hidden border border-[#262A30] bg-[#12141A] group/img1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 min-h-[220px] h-[min(38vh,380px)] items-stretch">
+          <div className="hidden sm:flex lg:col-span-5 flex-col gap-4 h-full min-h-0">
+            <div className="relative flex-1 min-h-0 rounded-[24px] sm:rounded-[32px] overflow-hidden border border-[#262A30] bg-[#12141A] group/img1">
               <img
                 src={project.images.leftTop}
                 alt={`${project.title} Architecture Flow`}
@@ -81,7 +81,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               </div>
             </div>
 
-            <div className="relative flex-1 rounded-[24px] sm:rounded-[32px] overflow-hidden border border-[#262A30] bg-[#12141A] group/img2">
+            <div className="relative flex-1 min-h-0 rounded-[24px] sm:rounded-[32px] overflow-hidden border border-[#262A30] bg-[#12141A] group/img2">
               <img
                 src={project.images.leftBottom}
                 alt={`${project.title} Telemetry Metrics`}
@@ -93,9 +93,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
           </div>
 
-          {/* Right Column (60%): 1 Large Primary Interactive Visual Blueprint */}
-          <div className="lg:col-span-7 h-full">
-            <div className="relative w-full h-full rounded-[24px] sm:rounded-[36px] overflow-hidden border border-[#262A30] bg-[#0E1015] group/img3 flex flex-col justify-between">
+          <div className="lg:col-span-7 h-full min-h-0">
+            <div className="relative w-full h-full rounded-[24px] sm:rounded-[36px] overflow-hidden border border-[#262A30] bg-[#0E1015] group/img3">
               <img
                 src={project.images.rightMain}
                 alt={`${project.title} Primary UI and System Blueprint`}
@@ -110,8 +109,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
         </div>
 
-        {/* Card Footer: Summary & Tech Badges */}
-        <div className="pt-4 border-t border-[#D7E2EA]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="pt-4 border-t border-[#D7E2EA]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
           <p className="text-xs sm:text-sm text-[#8E9AA4] font-light max-w-2xl line-clamp-2">
             {project.summary}
           </p>

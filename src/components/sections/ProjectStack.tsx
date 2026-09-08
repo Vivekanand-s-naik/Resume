@@ -18,7 +18,7 @@ export const ProjectStack: React.FC = () => {
     <section id="work" ref={containerRef} className="relative w-full py-28 px-4 sm:px-6 md:px-10 bg-[#0C0C0C]">
       <div className="max-w-[1700px] mx-auto w-full">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-12 editorial-border-b mb-12 sm:mb-20 gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-8 editorial-border-b mb-8 sm:mb-10 gap-6">
           <div>
             <div className="font-mono text-xs text-[#00F0FF] uppercase tracking-widest mb-3">
               // 03 FLAGSHIP SYSTEMS
@@ -33,7 +33,7 @@ export const ProjectStack: React.FC = () => {
         </div>
 
         {/* Sticky Stacking Projects Container */}
-        <div className="relative space-y-12 sm:space-y-16">
+        <div className="relative flex flex-col gap-6">
           {PROJECTS.map((project, index) => {
             const targetScale = 1 - (PROJECTS.length - 1 - index) * 0.03;
             const startRange = index / PROJECTS.length;
