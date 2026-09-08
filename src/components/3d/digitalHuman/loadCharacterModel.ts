@@ -163,8 +163,10 @@ function bindGltf(scene: THREE.Group, animations: THREE.AnimationClip[]): Digita
   halo.rotation.x = Math.PI / 3;
 
   aiCore.add(inner, shell, halo);
-  scene.add(aiCore);
-
+//   test
+//   scene.add(aiCore);
+aiCore.visible = false;
+scene.add(aiCore);
   const { geos, mats, textures } = collectDisposables(scene);
 
   const head = bones.head ?? scene;
