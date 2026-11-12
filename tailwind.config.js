@@ -27,13 +27,21 @@ export default {
           orange: '#BE4C00',
           deep: '#18011F',
           cyan: '#00F0FF',
-          lime: '#39FF14'
+          lime: '#39FF14',
+          terminal: '#00FF66',
+          amber: '#F59E0B',
         }
       },
       fontFamily: {
-        sans: ['Kanit', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        kanit: ['Kanit', 'sans-serif'],
       },
       letterSpacing: {
+        tightest: '-0.04em',
+        tighter: '-0.03em',
+        tight: '-0.02em',
         architectural: '0.2em',
         widest: '0.15em',
         ultra: '0.3em',

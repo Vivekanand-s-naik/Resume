@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Command } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { PROFILE } from '../../data/profile';
 import { Magnetic } from '../ui/Magnetic';
 
@@ -52,67 +52,70 @@ export const Navigation: React.FC<NavigationProps> = ({
       <motion.header
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 border-b border-white/[0.08] ${
           isScrolled
-            ? 'bg-[#0C0C0C]/80 backdrop-blur-md editorial-border-b py-4'
-            : 'pt-6 md:pt-8 pb-4'
+            ? 'bg-[#0C0C0C]/90 backdrop-blur-md py-3.5'
+            : 'bg-[#0C0C0C]/70 backdrop-blur-sm py-4 md:py-5'
         }`}
       >
-        <div className="max-w-[1700px] mx-auto px-6 md:px-10 flex items-center justify-between">
-          {/* Brand Signature */}
-          <Magnetic strength={0.2}>
+        <div className="max-w-[1700px] mx-auto px-4 sm:px-6 md:px-10 flex items-center justify-between">
+          {/* Brand Signature - Left Aligned Minimal */}
+          <Magnetic strength={0.15}>
             <a
               href="#"
               onClick={(e) => {
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="group flex items-center gap-3 select-none"
+              className="group flex items-center gap-2.5 select-none"
             >
-              <div className="w-2.5 h-2.5 rounded-full bg-[#00F0FF] group-hover:scale-125 group-hover:bg-[#B600A8] transition-all duration-300 shadow-[0_0_10px_#00F0FF]" />
-              <span className="font-bold tracking-widest uppercase text-sm sm:text-base text-[#D7E2EA] group-hover:text-white transition-colors">
+              <div className="w-2 h-2 bg-white group-hover:bg-[#00FF66] transition-colors" />
+              <span className="font-mono font-bold tracking-widest uppercase text-xs sm:text-sm text-white group-hover:text-neutral-300 transition-colors">
                 {PROFILE.name}
-              </span>
-              <span className="hidden sm:inline-block text-[11px] font-mono text-[#8E9AA4] px-2 py-0.5 rounded border border-[#262A30] bg-[#12141A]">
-                AI × FULL-STACK
               </span>
             </a>
           </Magnetic>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8 lg:gap-12" aria-label="Main Navigation">
-            {navItems.map((item) => (
-              <Magnetic key={item.label} strength={0.25}>
+          {/* Desktop Navigation - Clean Spaced Links */}
+          <nav className="hidden md:flex items-center gap-8 lg:gap-10" aria-label="Main Navigation">
+            {navItems.map((item, idx) => (
+              <Magnetic key={item.label} strength={0.2}>
                 <a
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item.href, item.isAction)}
-                  className="text-sm md:text-lg lg:text-[1.4rem] uppercase tracking-wider font-medium text-[#D7E2EA] hover:opacity-70 transition-opacity duration-200"
+                  className="text-xs font-mono uppercase tracking-[0.16em] text-neutral-400 hover:text-white transition-colors duration-150 py-1 flex items-center gap-1.5 group"
                 >
-                  {item.label}
+                  <span className="text-neutral-600 text-[10px] group-hover:text-neutral-400 transition-colors">
+                    0{idx + 1}
+                  </span>
+                  <span>{item.label}</span>
                 </a>
               </Magnetic>
             ))}
           </nav>
 
-          {/* Right Utilities (Command Palette Shortcut + Mobile Hamburger) */}
+          {/* Right Utilities - Minimal ⌘K Indicator + Mobile Hamburger */}
           <div className="flex items-center gap-3">
             <button
               onClick={onOpenCommandPalette}
-              className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#262A30] bg-[#12141A]/70 hover:border-[#7621B0] text-xs font-mono text-[#8E9AA4] hover:text-white transition-all cursor-pointer"
-              title="Command Palette (Cmd+K)"
+              className="hidden sm:inline-flex items-center gap-2 px-2.5 py-1.5 border border-white/10 hover:border-white/30 bg-white/[0.02] hover:bg-white/[0.06] text-xs font-mono text-neutral-400 hover:text-white transition-all cursor-pointer rounded-none group"
+              title="Command Palette (⌘K)"
+              aria-label="Open Command Palette"
             >
-              <Command className="w-3.5 h-3.5 text-[#00F0FF]" />
-              <span>CMD + K</span>
+              <span className="text-[10px] text-neutral-500 group-hover:text-neutral-400 tracking-wider">COMMAND</span>
+              <kbd className="px-1.5 py-0.5 border border-white/15 bg-white/10 text-[10px] text-neutral-200 font-mono">
+                ⌘K
+              </kbd>
             </button>
 
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-[#D7E2EA] hover:text-white hover:bg-white/5 transition-colors"
+              className="md:hidden p-1.5 text-neutral-300 hover:text-white border border-white/10 hover:border-white/20 transition-colors"
               aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -122,38 +125,39 @@ export const Navigation: React.FC<NavigationProps> = ({
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 top-[70px] z-30 bg-[#0C0C0C]/95 backdrop-blur-xl md:hidden px-6 py-8 flex flex-col justify-between border-t border-[#262A30]"
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 top-[60px] z-30 bg-[#0C0C0C]/98 backdrop-blur-xl md:hidden px-6 py-8 flex flex-col justify-between border-t border-white/10"
           >
-            <nav className="flex flex-col space-y-6">
-              {navItems.map((item) => (
+            <nav className="flex flex-col space-y-4">
+              {navItems.map((item, idx) => (
                 <a
                   key={item.label}
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item.href, item.isAction)}
-                  className="text-2xl font-bold uppercase tracking-wider text-[#D7E2EA] hover:text-[#00F0FF] transition-colors"
+                  className="flex items-center justify-between py-3 border-b border-white/[0.06] font-mono text-base uppercase tracking-wider text-neutral-300 hover:text-white transition-colors"
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  <span className="text-xs text-neutral-600">[0{idx + 1}]</span>
                 </a>
               ))}
             </nav>
 
-            <div className="pt-6 border-t border-[#262A30] space-y-4">
+            <div className="pt-6 border-t border-white/10 space-y-3">
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   onOpenCommandPalette();
                 }}
-                className="w-full py-3 rounded-xl bg-[#12141A] border border-[#262A30] text-xs font-mono text-[#D7E2EA] flex items-center justify-center gap-2"
+                className="w-full py-3 bg-white/[0.04] border border-white/10 text-xs font-mono text-neutral-200 flex items-center justify-center gap-2 cursor-pointer hover:bg-white/[0.08] transition-colors"
               >
-                <Command className="w-4 h-4 text-[#00F0FF]" />
-                <span>OPEN QUICK JUMP PALETTE</span>
+                <span>OPEN COMMAND PALETTE</span>
+                <kbd className="px-1.5 py-0.5 bg-white/10 border border-white/15 text-[10px]">⌘K</kbd>
               </button>
-              <div className="text-xs text-[#8E9AA4] font-mono text-center">
-                ● STATUS: ALL SYSTEMS OPERATIONAL
+              <div className="text-[10px] text-neutral-500 font-mono text-center tracking-widest uppercase">
+                [SYS_STATUS // ALL SYSTEMS ONLINE]
               </div>
             </div>
           </motion.div>

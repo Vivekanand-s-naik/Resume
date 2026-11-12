@@ -10,24 +10,24 @@ interface ContactSectionProps {
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenContact }) => {
   return (
-    <section id="contact" className="relative w-full py-32 sm:py-48 px-4 sm:px-6 md:px-10 bg-[#0C0C0C] border-t border-[#262A30]/60 overflow-hidden">
-      {/* Cinematic Ambient Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[400px] bg-gradient-to-r from-[#7621B0]/20 via-[#B600A8]/20 to-[#BE4C00]/20 rounded-full blur-[140px] pointer-events-none" />
+    <section id="contact" className="relative w-full py-32 sm:py-48 px-4 sm:px-6 md:px-10 bg-[#0C0C0C] border-t border-white/10 overflow-hidden">
+      {/* Subtle Technical Radial Backing */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[400px] bg-white/[0.02] rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-[1500px] mx-auto w-full text-center relative z-10 flex flex-col items-center">
-        {/* Top Mini Pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#262A30] bg-[#12141A]/80 backdrop-blur-sm mb-8">
-          <span className="w-2 h-2 rounded-full bg-[#39FF14] animate-pulse" />
-          <span className="text-xs font-mono uppercase tracking-widest text-[#00F0FF]">
-            SYSTEM AVAILABILITY: {PROFILE.status}
+        {/* Monospace Metadata Counter */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 border border-white/10 bg-white/[0.02] text-xs font-mono mb-8">
+          <span className="w-1.5 h-1.5 bg-[#00FF66]" />
+          <span className="uppercase tracking-widest text-neutral-300">
+            [SYS_AVAILABILITY // {PROFILE.status}]
           </span>
         </div>
 
         {/* Dramatic Section Heading */}
-        <h2 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black uppercase tracking-tight text-white leading-none max-w-5xl">
+        <h2 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black uppercase tracking-tight text-white leading-none max-w-5xl font-display">
           LET'S BUILD <br />
-          <span className="text-gradient-accent">SOMETHING</span> <br />
-          INTELLIGENT.
+          <span className="text-neutral-400">STATEFUL</span> <br />
+          SYSTEMS.
         </h2>
 
         {/* Supporting Copy */}

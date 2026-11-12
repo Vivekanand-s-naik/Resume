@@ -56,11 +56,11 @@ export const AboutSection: React.FC = () => {
       <div className="max-w-[1500px] mx-auto w-full">
         {/* Section Header */}
         <div className="flex items-center justify-between pb-8 editorial-border-b mb-16">
-          <span className="font-mono text-xs uppercase tracking-widest text-[#00F0FF]">
-            // 02 PERSPECTIVE & PHILOSOPHY
+          <span className="font-mono text-xs uppercase tracking-widest text-white font-medium">
+            [02 // PERSPECTIVE &amp; PHILOSOPHY]
           </span>
           <span className="font-mono text-xs uppercase tracking-widest text-[#8E9AA4]">
-            MODEL LAYER → PIXEL
+            STATEFUL WORKFLOWS → DISTRIBUTED ARCHITECTURE
           </span>
         </div>
 

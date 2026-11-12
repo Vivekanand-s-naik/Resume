@@ -28,7 +28,7 @@ export function App(): React.ReactElement {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#0C0C0C] text-[#D7E2EA] selection:bg-[#7621B0] selection:text-white overflow-x-clip">
+    <div className="relative min-h-screen bg-[#0C0C0C] text-[#D7E2EA] selection:bg-white selection:text-black overflow-x-clip">
       {/* Interactive Cursor follower */}
       <CustomCursor />
 

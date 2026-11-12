@@ -8,7 +8,11 @@ function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
 
-export const DigitalHumanCanvas: React.FC = () => {
+interface DigitalHumanCanvasProps {
+  centered?: boolean;
+}
+
+export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const prefersReducedMotion = false;
@@ -160,7 +164,18 @@ export const DigitalHumanCanvas: React.FC = () => {
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
 
-      if (mobileLayout) {
+      if (centered) {
+        rest.scale = mobileLayout ? 0.95 : 1.05;
+        rest.camY = 1.25;
+        rest.camZ = mobileLayout ? 3.35 : 2.92;
+        rest.camLookX = 0;
+        rest.rootX = 0;
+        rest.rootY = -0.45;
+        groundShadow.position.x = 0;
+        camera.position.set(0, rest.camY, rest.camZ);
+        camera.lookAt(0, 1.15, 0);
+        if (rig) rig.root.position.set(rest.rootX, rest.rootY, 0);
+      } else if (mobileLayout) {
         rest.scale = 0.92;
         rest.camY = 1.18;
         rest.camZ = 3.65;

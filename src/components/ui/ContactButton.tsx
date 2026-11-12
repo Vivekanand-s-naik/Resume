@@ -8,36 +8,50 @@ interface ContactButtonProps {
   className?: string;
   href?: string;
   showIcon?: boolean;
+  variant?: 'monochrome' | 'industrial' | 'outline';
 }
 
 export const ContactButton: React.FC<ContactButtonProps> = ({
-  label = "Let's Talk",
+  label = "INITIATE TRANSMISSION",
   onClick,
   className = '',
   href,
   showIcon = true,
+  variant = 'monochrome',
 }) => {
+  const isIndustrial = variant === 'industrial';
+  const isOutline = variant === 'outline';
+
+  const baseTheme = isOutline
+    ? 'bg-transparent text-white border border-white/20 hover:border-white hover:bg-white/[0.04]'
+    : isIndustrial
+    ? 'bg-[#00FF66] text-black border border-[#00FF66] hover:bg-[#10B981]'
+    : 'bg-white text-black border border-white hover:bg-neutral-200';
+
+  const iconTheme = isOutline ? 'text-white' : 'text-black';
+
   const buttonContent = (
-    <span className="relative flex items-center justify-center gap-2.5 px-7 py-3.5 sm:px-9 sm:py-4">
-      <span className="text-white font-medium uppercase tracking-widest text-sm sm:text-base whitespace-nowrap">
+    <span className="relative flex items-center justify-center gap-2.5 px-6 py-3 sm:px-7 sm:py-3.5">
+      <span className="font-mono font-semibold uppercase tracking-widest text-xs whitespace-nowrap">
         {label}
       </span>
       {showIcon && (
-        <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 text-white transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        <ArrowUpRight className={`w-3.5 h-3.5 ${iconTheme} transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5`} />
       )}
     </span>
   );
 
   const buttonClasses = `
-    group relative inline-flex items-center justify-center rounded-full overflow-hidden cursor-pointer
-    contact-btn-custom
+    group relative inline-flex items-center justify-center rounded-none overflow-hidden cursor-pointer
+    ${baseTheme}
+    shadow-sm transition-all duration-150 active:translate-y-0.5
     select-none
     ${className}
   `;
 
   if (href) {
     return (
-      <Magnetic strength={0.28}>
+      <Magnetic strength={0.15}>
         <a
           href={href}
           onClick={onClick}
@@ -51,7 +65,7 @@ export const ContactButton: React.FC<ContactButtonProps> = ({
   }
 
   return (
-    <Magnetic strength={0.28}>
+    <Magnetic strength={0.15}>
       <button
         type="button"
         onClick={onClick}
