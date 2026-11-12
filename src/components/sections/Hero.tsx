@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PROFILE } from '../../data/profile';
-import { DigitalHumanCanvas } from '../3d/DigitalHumanCanvas';
-import { ArrowDown, ArrowUpRight } from 'lucide-react';
+import { DigitalHumanCanvas, CharacterRenderMode } from '../3d/DigitalHumanCanvas';
+import { ArrowDown, ArrowUpRight, Sparkles } from 'lucide-react';
 
 interface HeroProps {
   onOpenContact: () => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
+  const [renderMode, setRenderMode] = useState<CharacterRenderMode>('agent');
+
   const scrollToWork = () => {
     document.getElementById('systems')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -144,19 +146,34 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
           transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
           className="lg:col-span-5 xl:col-span-5 flex flex-col bg-[#0F1115]/50 relative border-t lg:border-t-0 border-white/10"
         >
-          {/* Viewport Top Header */}
+          {/* Viewport Top Header with Interactive Render Mode Toggle */}
           <div className="w-full border-b border-white/10 px-4 py-2.5 flex items-center justify-between text-[11px] font-mono bg-black/40 z-10">
             <div className="flex items-center gap-2">
-              <span className="text-white font-medium">[NODE_01 // AGENTIC_SIMULATION]</span>
+              <span className="text-white font-medium">[NODE_01 // AGENT_VIEWPORT]</span>
             </div>
-            <div className="flex items-center gap-2 text-neutral-400">
-              <span className="inline-block w-1.5 h-1.5 bg-[#00FF66]" />
-              <span className="text-[#00FF66] text-[10px]">LIVE_KINEMATICS</span>
+            
+            {/* Interactive Mode Pills */}
+            <div className="flex items-center gap-1">
+              {(['agent', 'holo', 'wireframe'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setRenderMode(m)}
+                  className={`px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                    renderMode === m
+                      ? 'bg-[#00FF66] text-black font-bold'
+                      : 'text-neutral-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.08]'
+                  }`}
+                  aria-label={`Switch to ${m} view`}
+                >
+                  {m}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Viewport Canvas Frame */}
-          <div className="relative flex-1 min-h-[400px] sm:min-h-[480px] lg:min-h-0 overflow-hidden">
+          {/* Viewport Canvas Frame - Generous height guaranteeing centered fit */}
+          <div className="relative flex-1 min-h-[460px] sm:min-h-[540px] lg:min-h-[600px] overflow-hidden">
             {/* Sharp Corner Grid Markers */}
             <span className="absolute top-3 left-3 text-white/30 font-mono text-xs select-none pointer-events-none z-10">
               +
@@ -171,34 +188,37 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
               +
             </span>
 
-            {/* Precision Interactive 3D Canvas Centered in Viewport */}
-            <DigitalHumanCanvas centered={true} />
+            {/* Precision Centered Interactive 3D Canvas */}
+            <DigitalHumanCanvas centered={true} mode={renderMode} />
 
             {/* Realtime Telemetry HUD Overlay */}
-            <div className="absolute top-5 left-5 z-10 font-mono text-[10px] space-y-1 bg-black/75 backdrop-blur-sm border border-white/10 p-3 text-neutral-400 select-none pointer-events-none">
-              <div className="text-white font-medium tracking-wide">// AGENTIC GRAPH STATE</div>
-              <div>
-                RUNTIME: <span className="text-white">LANGGRAPH_v0.2</span>
+            <div className="absolute top-5 left-5 z-10 font-mono text-[10px] space-y-1 bg-black/80 backdrop-blur-sm border border-white/10 p-3 text-neutral-400 select-none pointer-events-none">
+              <div className="text-white font-medium tracking-wide flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-[#00FF66]" />
+                <span>// AGENTIC NODE RUNTIME</span>
               </div>
               <div>
-                WORKFLOW: <span className="text-white">STATEFUL_DAG</span>
+                STATE: <span className="text-[#00FF66]">SYNCHRONIZED</span>
               </div>
               <div>
-                TRACKING: <span className="text-[#00FF66]">SYNCHRONIZED</span>
+                COMPANION: <span className="text-white">ORBITAL_NEURAL_CORE</span>
+              </div>
+              <div>
+                MODE: <span className="text-white uppercase">{renderMode}</span>
               </div>
             </div>
 
             {/* Bottom-Right Interactive Kinematics Indicator */}
-            <div className="absolute bottom-5 right-5 z-10 font-mono text-[10px] bg-black/75 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-neutral-400 flex items-center gap-2 select-none pointer-events-none">
+            <div className="absolute bottom-5 right-5 z-10 font-mono text-[10px] bg-black/80 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-neutral-400 flex items-center gap-2 select-none pointer-events-none">
               <span className="w-1.5 h-1.5 bg-[#00FF66] animate-pulse" />
-              <span>INTERACTIVE 3D KINEMATICS</span>
+              <span>CLICK TO TRIGGER QUANTUM PULSE</span>
             </div>
           </div>
 
           {/* Viewport Bottom Footer */}
           <div className="w-full border-t border-white/10 px-4 py-2.5 flex items-center justify-between text-[10px] font-mono text-neutral-500 bg-black/40 z-10">
             <span>PIPELINE: EVALUATE → ROUTE → STREAM</span>
-            <span>CONCURRENCY: HIGH</span>
+            <span>FPS: 60 // P99 &lt;16MS</span>
           </div>
         </motion.div>
       </div>
@@ -230,3 +250,4 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
     </section>
   );
 };
+

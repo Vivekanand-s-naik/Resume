@@ -124,49 +124,68 @@ function bindGltf(scene: THREE.Group, animations: THREE.AnimationClip[]): Digita
   // Recalculate box after scale and center on origin
   box.setFromObject(scene);
   const center = box.getCenter(new THREE.Vector3());
-  scene.position.x -= center.x;
-  scene.position.z -= center.z;
-  scene.position.y -= box.min.y;
 
-  // AI Core: Refined floating companion near the character's shoulder
+  // Center scene inside characterVisualGroup so its feet rest at y=0 and body is centered at x=0, z=0
+  const characterGroup = new THREE.Group();
+  characterGroup.name = 'characterVisualGroup';
+  characterGroup.add(scene);
+  scene.position.set(-center.x, -box.min.y, -center.z);
+
+  // Creative AI Core: Orbiting high-tech neural companion with dual gyroscopic rings
   const aiCore = new THREE.Group();
   aiCore.name = 'aiCore';
-  aiCore.position.set(-0.36, 1.34, 0.22);
+  aiCore.position.set(0.38, 1.42, 0.15);
 
-  const innerGeo = new THREE.IcosahedronGeometry(0.038, 0);
+  // 1. Glowing Crystalline Core
+  const innerGeo = new THREE.OctahedronGeometry(0.042, 0);
   const innerMat = new THREE.MeshStandardMaterial({
-    color: '#a5f3fc',
-    emissive: '#00F0FF',
-    emissiveIntensity: 0.5,
-    roughness: 0.18,
-    metalness: 0.2,
+    color: '#00FF66',
+    emissive: '#00FF66',
+    emissiveIntensity: 0.9,
+    roughness: 0.15,
+    metalness: 0.3,
   });
   const inner = new THREE.Mesh(innerGeo, innerMat);
 
-  const shellGeo = new THREE.IcosahedronGeometry(0.062, 0);
+  // 2. Translucent Wireframe Energy Shell
+  const shellGeo = new THREE.IcosahedronGeometry(0.068, 0);
   const shellMat = new THREE.MeshBasicMaterial({
     color: '#00F0FF',
     wireframe: true,
     transparent: true,
-    opacity: 0.26,
+    opacity: 0.5,
   });
   const shell = new THREE.Mesh(shellGeo, shellMat);
 
-  const haloGeo = new THREE.RingGeometry(0.075, 0.08, 32);
-  const haloMat = new THREE.MeshBasicMaterial({
+  // 3. Primary Orbital Ring (Terminal Green)
+  const ring1Geo = new THREE.TorusGeometry(0.092, 0.003, 8, 36);
+  const ring1Mat = new THREE.MeshBasicMaterial({
+    color: '#00FF66',
+    transparent: true,
+    opacity: 0.65,
+  });
+  const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
+  ring1.rotation.x = Math.PI / 4;
+
+  // 4. Secondary Counter-Orbital Ring (Electric Cyan)
+  const ring2Geo = new THREE.TorusGeometry(0.112, 0.0025, 8, 36);
+  const ring2Mat = new THREE.MeshBasicMaterial({
     color: '#00F0FF',
     transparent: true,
-    opacity: 0.2,
-    side: THREE.DoubleSide,
+    opacity: 0.5,
   });
-  const halo = new THREE.Mesh(haloGeo, haloMat);
-  halo.rotation.x = Math.PI / 3;
+  const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+  ring2.rotation.y = Math.PI / 3;
 
-  aiCore.add(inner, shell, halo);
-//   test
-//   scene.add(aiCore);
-aiCore.visible = false;
-scene.add(aiCore);
+  aiCore.add(inner, shell, ring1, ring2);
+  aiCore.visible = true;
+
+  // Root container holding the centered character and companion
+  const characterRoot = new THREE.Group();
+  characterRoot.name = 'digitalHumanRoot';
+  characterRoot.add(characterGroup);
+  characterRoot.add(aiCore);
+
   const { geos, mats, textures } = collectDisposables(scene);
 
   const head = bones.head ?? scene;
@@ -174,8 +193,8 @@ scene.add(aiCore);
   const rightEye = bones.rightEye ?? null;
 
   return {
-    root: scene,
-    body: bones.hips ?? scene,
+    root: characterRoot,
+    body: bones.hips ?? characterRoot,
     hips: bones.hips ?? null,
     spine: bones.spine ?? null,
     spine1: bones.spine1 ?? null,
@@ -216,10 +235,12 @@ scene.add(aiCore);
       textures.forEach((t) => t.dispose());
       innerGeo.dispose();
       shellGeo.dispose();
-      haloGeo.dispose();
+      ring1Geo.dispose();
+      ring2Geo.dispose();
       innerMat.dispose();
       shellMat.dispose();
-      haloMat.dispose();
+      ring1Mat.dispose();
+      ring2Mat.dispose();
     },
   };
 }

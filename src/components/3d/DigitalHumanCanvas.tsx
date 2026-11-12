@@ -2,21 +2,33 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { loadDigitalHuman } from './digitalHuman/loadCharacterModel';
-import type { DigitalHumanRig, FingerBones } from './digitalHuman/rig';
+import type { DigitalHumanRig } from './digitalHuman/rig';
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
 
+export type CharacterRenderMode = 'agent' | 'holo' | 'wireframe';
+
 interface DigitalHumanCanvasProps {
   centered?: boolean;
+  mode?: CharacterRenderMode;
+  onTriggerPulse?: () => void;
 }
 
-export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered = false }) => {
+export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
+  centered = true,
+  mode = 'agent',
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const prefersReducedMotion = false;
+  const pulseTriggerRef = useRef<() => void>(() => {});
+  const applyRenderModeRef = useRef<(m: CharacterRenderMode) => void>(() => {});
+
   useEffect(() => {
+    // Acknowledge centered prop for architectural layout
+    void centered;
     const container = containerRef.current;
     if (!container) return;
 
@@ -26,9 +38,9 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered
     let resizeObserver: ResizeObserver | null = null;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0c0c0c, 0.08);
+    scene.fog = new THREE.FogExp2(0x0c0c0c, 0.06);
 
-    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 40);
+    const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 40);
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: !isMobile,
@@ -37,119 +49,169 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
+    renderer.toneMappingExposure = 1.15;
     const dprCap = prefersReducedMotion ? 1 : isMobile ? 1.25 : 1.75;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, dprCap));
     container.appendChild(renderer.domElement);
 
-    // Cinematic 3-point Studio Lighting with Precision Cyan Rim Light
-    const hemi = new THREE.HemisphereLight(0xb4c2cc, 0x0c0c0c, 0.55);
+    // High-End Studio Lighting for Sharp Developer Identity
+    const hemi = new THREE.HemisphereLight(0xc8d6e0, 0x0c0c0c, 0.65);
     scene.add(hemi);
 
-    // Warm Key Light (Main facial definition)
-    const keyLight = new THREE.DirectionalLight(0xf5eee6, 1.25);
-    keyLight.position.set(-2.2, 3.4, 3.2);
+    // Key Light (Facial & Torso Definition)
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    keyLight.position.set(-1.8, 2.8, 2.5);
     scene.add(keyLight);
 
-    // Cool Slate Fill Light (Soft shadow detail)
-    const fillLight = new THREE.DirectionalLight(0x64748b, 0.4);
-    fillLight.position.set(2.4, 0.8, 1.8);
+    // Cool Technical Fill Light
+    const fillLight = new THREE.DirectionalLight(0x4a5568, 0.55);
+    fillLight.position.set(2.2, 1.0, 1.8);
     scene.add(fillLight);
 
-    // Electric Cyan Rim Light (Sharp edge separation against dark background)
-    const rimLight = new THREE.DirectionalLight(0x00F0FF, 0.65);
-    rimLight.position.set(1.8, 2.4, -2.6);
+    // Razor-Sharp Terminal Green Rim Light for edge separation
+    const rimLight = new THREE.DirectionalLight(0x00FF66, 0.85);
+    rimLight.position.set(1.6, 2.2, -2.4);
     scene.add(rimLight);
 
-    // AI Core Point Light
-    const coreLight = new THREE.PointLight(0x00F0FF, 0.6, 2.5);
+    // Secondary Electric Cyan Top-Rim
+    const cyanRim = new THREE.DirectionalLight(0x00F0FF, 0.5);
+    cyanRim.position.set(-1.6, 2.6, -2.0);
+    scene.add(cyanRim);
+
+    // AI Core Dynamic Point Light (casts live colored illumination onto the character)
+    const coreLight = new THREE.PointLight(0x00FF66, 0.9, 2.8);
     scene.add(coreLight);
 
-    // Atmospheric subtle dust / tech particles
+    // ==========================================
+    // CREATIVE ELEMENT 1: Holographic Ground Reticle
+    // ==========================================
+    const reticleGroup = new THREE.Group();
+    reticleGroup.position.set(0, 0.002, 0);
+    reticleGroup.rotation.x = -Math.PI / 2;
+    scene.add(reticleGroup);
+
+    // Ground Contact Shadow
+    const shadowGeo = new THREE.CircleGeometry(0.52, 32);
+    const shadowMat = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.6,
+      depthWrite: false,
+    });
+    const groundShadow = new THREE.Mesh(shadowGeo, shadowMat);
+    groundShadow.position.z = -0.001;
+    reticleGroup.add(groundShadow);
+
+    // Thin Cyan Tech Ring
+    const innerRingGeo = new THREE.RingGeometry(0.52, 0.525, 64);
+    const innerRingMat = new THREE.MeshBasicMaterial({
+      color: 0x00F0FF,
+      transparent: true,
+      opacity: 0.45,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    reticleGroup.add(new THREE.Mesh(innerRingGeo, innerRingMat));
+
+    // Outer Terminal-Green Segmented Ring
+    const outerRingGeo = new THREE.RingGeometry(0.74, 0.746, 64);
+    const outerRingMat = new THREE.MeshBasicMaterial({
+      color: 0x00FF66,
+      transparent: true,
+      opacity: 0.35,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    reticleGroup.add(new THREE.Mesh(outerRingGeo, outerRingMat));
+
+    // Cardinal Coordinate Tick Marks
+    const tickGeo = new THREE.PlaneGeometry(0.06, 0.004);
+    const tickMat = new THREE.MeshBasicMaterial({
+      color: 0x00FF66,
+      transparent: true,
+      opacity: 0.7,
+      depthWrite: false,
+    });
+    for (let i = 0; i < 4; i++) {
+      const tick = new THREE.Mesh(tickGeo, tickMat);
+      const angle = (i * Math.PI) / 2;
+      tick.position.set(Math.cos(angle) * 0.74, Math.sin(angle) * 0.74, 0);
+      tick.rotation.z = angle;
+      reticleGroup.add(tick);
+    }
+
+    // ==========================================
+    // CREATIVE ELEMENT 2: Interactive Ripple Shockwave
+    // ==========================================
+    const pulseRingGeo = new THREE.RingGeometry(0.1, 0.12, 48);
+    const pulseRingMat = new THREE.MeshBasicMaterial({
+      color: 0x00FF66,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const pulseRing = new THREE.Mesh(pulseRingGeo, pulseRingMat);
+    pulseRing.rotation.x = -Math.PI / 2;
+    pulseRing.position.y = 0.004;
+    scene.add(pulseRing);
+
+    let pulseProgress = -1;
+    pulseTriggerRef.current = () => {
+      pulseProgress = 0;
+    };
+
+    // ==========================================
+    // CREATIVE ELEMENT 3: Atmospheric Telemetry Dust
+    // ==========================================
     const atmosphere = new THREE.Group();
     scene.add(atmosphere);
 
-    const particleCount = prefersReducedMotion ? 0 : isMobile ? 65 : 140;
+    const particleCount = prefersReducedMotion ? 0 : isMobile ? 35 : 70;
     let particleGeo: THREE.BufferGeometry | null = null;
     let particleMat: THREE.PointsMaterial | null = null;
     if (particleCount > 0) {
       particleGeo = new THREE.BufferGeometry();
       const coords = new Float32Array(particleCount * 3);
       for (let i = 0; i < particleCount; i++) {
-        coords[i * 3] = (Math.random() - 0.35) * 6.5;
-        coords[i * 3 + 1] = Math.random() * 3.4 - 0.4;
-        coords[i * 3 + 2] = (Math.random() - 0.5) * 4.2 - 0.6;
+        coords[i * 3] = (Math.random() - 0.5) * 3.5;
+        coords[i * 3 + 1] = Math.random() * 2.2 + 0.2;
+        coords[i * 3 + 2] = (Math.random() - 0.5) * 2.5;
       }
       particleGeo.setAttribute('position', new THREE.BufferAttribute(coords, 3));
       particleMat = new THREE.PointsMaterial({
-        color: 0x8aa0aa,
-        size: isMobile ? 0.016 : 0.013,
+        color: 0x00FF66,
+        size: 0.012,
         transparent: true,
-        opacity: 0.24,
+        opacity: 0.35,
         depthWrite: false,
       });
       atmosphere.add(new THREE.Points(particleGeo, particleMat));
     }
 
-    // Subtle dark floating shards for depth
-    const shardMat = new THREE.MeshBasicMaterial({
-      color: 0x2e3842,
-      transparent: true,
-      opacity: 0.18,
-    });
-    const shardGeo = new THREE.BoxGeometry(0.01, 0.1, 0.01);
-    if (!prefersReducedMotion) {
-      const shardCount = isMobile ? 5 : 10;
-      for (let i = 0; i < shardCount; i++) {
-        const shard = new THREE.Mesh(shardGeo, shardMat);
-        shard.position.set(
-          (Math.random() - 0.2) * 4.2,
-          Math.random() * 2.2 + 0.2,
-          -1.2 - Math.random() * 1.8
-        );
-        shard.rotation.set(Math.random(), Math.random(), Math.random());
-        atmosphere.add(shard);
-      }
-    }
-
-    // Ground Contact Shadow
-    const shadowGeo = new THREE.CircleGeometry(0.48, 32);
-    const shadowMat = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      transparent: true,
-      opacity: 0.42,
-      depthWrite: false,
-    });
-    const groundShadow = new THREE.Mesh(shadowGeo, shadowMat);
-    groundShadow.rotation.x = -Math.PI / 2;
-    groundShadow.position.set(0.62, 0.001, 0);
-    scene.add(groundShadow);
-
+    // Camera and Target Configuration
     const coreWorld = new THREE.Vector3();
+    const lookTarget = new THREE.Vector3(0, 1.34, 0);
+
     const rest = {
-      coreX: -0.36,
-      coreY: 1.34,
-      scale: 1,
-      camY: 1.22,
-      camZ: 3.15,
-      camLookX: 0.55,
-      rootX: 0.62,
-      // test with this
-      rootY: -0.47,
+      camY: 1.38,
+      camZ: 2.35,
+      camLookY: 1.34,
+      coreX: 0.38,
+      coreY: 1.42,
     };
 
     const mouse = { x: 0, y: 0 };
     const eyeRot = { x: 0, y: 0 };
-    const headRot = { x: 0, y: -0.1 };
+    const headRot = { x: 0, y: 0 };
     const neckRot = { x: 0, y: 0 };
     const shoulderRot = { x: 0, y: 0 };
     const spineRot = { x: 0, y: 0 };
-    const hipsRot = { x: 0, y: 0 };
-    const armLag = { leftX: 0, leftZ: 0, rightX: 0, rightZ: 0 };
     const bodyPos = { x: 0, y: 0 };
     const corePos = { x: 0, y: 0 };
 
     const onMouseMove = (e: MouseEvent) => {
+      // If pointer is moving across window, compute normalized coords
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -((e.clientY / window.innerHeight) * 2 - 1);
     };
@@ -158,43 +220,33 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered
       window.addEventListener('mousemove', onMouseMove, { passive: true });
     }
 
+    // Precision Layout Camera to Guarantee Perfect Fit
     const layoutCamera = (width: number, height: number) => {
-      const mobileLayout = width < 768;
-      camera.aspect = width / height;
+      if (!width || !height) return;
+      const aspect = width / height;
+      camera.aspect = aspect;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
 
-      if (centered) {
-        rest.scale = mobileLayout ? 0.95 : 1.05;
-        rest.camY = 1.25;
-        rest.camZ = mobileLayout ? 3.35 : 2.92;
-        rest.camLookX = 0;
-        rest.rootX = 0;
-        rest.rootY = -0.45;
-        groundShadow.position.x = 0;
-        camera.position.set(0, rest.camY, rest.camZ);
-        camera.lookAt(0, 1.15, 0);
-        if (rig) rig.root.position.set(rest.rootX, rest.rootY, 0);
-      } else if (mobileLayout) {
-        rest.scale = 0.92;
-        rest.camY = 1.18;
-        rest.camZ = 3.65;
-        rest.camLookX = 0.08;
-        rest.rootX = 0.08;
-        groundShadow.position.x = 0.08;
-        camera.position.set(0.1, rest.camY, rest.camZ);
-        camera.lookAt(rest.camLookX, 1.05, 0);
-        if (rig) rig.root.position.set(rest.rootX, 0, 0);
-      } else {
-        rest.scale = 1;
-        rest.camY = 1.22;
-        rest.camZ = 3.15;
-        rest.camLookX = 0.52;
-        rest.rootX = 0.62;
-        groundShadow.position.x = 0.62;
-        camera.position.set(0.28, rest.camY, rest.camZ);
-        camera.lookAt(rest.camLookX, 1.12, 0);
-        if (rig) rig.root.position.set(rest.rootX, 0, 0);
+      // We want to frame from torso (y ~ 0.85m) to head top (y ~ 1.85m) = ~1.15m height
+      // and width of shoulders + companion core = ~1.1m
+      const vFovRad = THREE.MathUtils.degToRad(camera.fov);
+      const reqDistY = (1.18 / 2) / Math.tan(vFovRad / 2);
+      const reqDistX = (1.12 / 2) / (Math.tan(vFovRad / 2) * aspect);
+
+      // Distance that guarantees upper body fits without clipping on any device:
+      const optimalDist = Math.max(reqDistY, reqDistX, 2.2);
+
+      rest.camZ = optimalDist;
+      rest.camY = 1.38;
+      rest.camLookY = 1.34;
+
+      camera.position.set(0, rest.camY, rest.camZ);
+      lookTarget.set(0, rest.camLookY, 0);
+      camera.lookAt(lookTarget);
+
+      if (rig) {
+        rig.root.position.set(0, 0, 0);
       }
     };
 
@@ -222,301 +274,158 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered
     const clock = new THREE.Clock();
     layoutCamera(container.clientWidth || 1, container.clientHeight || 1);
 
+    // Material Mode Updater
+    const applyRenderMode = (currentMode: CharacterRenderMode) => {
+      if (!rig) return;
+      rig.root.traverse((obj) => {
+        const mesh = obj as THREE.Mesh;
+        if (!mesh.isMesh || mesh.name.includes('aiCore') || mesh.parent?.name.includes('aiCore')) return;
+
+        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        materials.forEach((mat) => {
+          if (!mat) return;
+          const m = mat as THREE.MeshStandardMaterial;
+
+          if (currentMode === 'wireframe') {
+            m.wireframe = true;
+            m.color.set('#00FF66');
+            m.emissive.set('#00FF66');
+            m.emissiveIntensity = 0.4;
+          } else if (currentMode === 'holo') {
+            m.wireframe = false;
+            m.transparent = true;
+            m.opacity = 0.85;
+            m.color.set('#00F0FF');
+            m.emissive.set('#00F0FF');
+            m.emissiveIntensity = 0.35;
+          } else {
+            // Default agent mode
+            m.wireframe = false;
+            m.transparent = false;
+            m.opacity = 1.0;
+            const matName = (m.name || '').toLowerCase();
+            if (matName.includes('top') || matName.includes('jacket')) {
+              m.color.set('#14171c');
+              m.roughness = 0.52;
+              m.metalness = 0.22;
+              m.emissive.set('#000000');
+            } else if (matName.includes('bottom') || matName.includes('pants')) {
+              m.color.set('#101215');
+              m.roughness = 0.72;
+              m.metalness = 0.1;
+              m.emissive.set('#000000');
+            } else if (matName.includes('skin') || matName.includes('head') || matName.includes('body')) {
+              m.roughness = 0.5;
+              m.metalness = 0.02;
+              m.emissive.set('#000000');
+            }
+          }
+        });
+      });
+    };
+    applyRenderModeRef.current = applyRenderMode;
+
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       if (!isVisible || disposed) return;
 
       const dt = Math.min(clock.getDelta(), 0.05);
       const t = clock.elapsedTime;
-      const scrollProgress = Math.min(window.scrollY / Math.max(window.innerHeight, 1), 1.6);
+      const reduced = prefersReducedMotion;
+
+      // Handle Ripple Pulse Shockwave
+      if (pulseProgress >= 0) {
+        pulseProgress += dt * 2.2;
+        const p = Math.min(pulseProgress, 1.0);
+        pulseRing.scale.setScalar(1 + p * 8.5);
+        pulseRingMat.opacity = (1 - p) * 0.75;
+        if (p >= 1.0) pulseProgress = -1;
+      }
+
+      // Rotate ground tech reticle
+      reticleGroup.rotation.z = -t * 0.07;
 
       if (rig) {
-        const reduced = prefersReducedMotion;
-
-        // Multi-tier Physical Interaction Hierarchy
-        // 1. Eyes react fastest
-        const targetEyeY = reduced ? 0 : mouse.x * 0.32;
-        const targetEyeX = reduced ? 0 : -mouse.y * 0.24;
+        // Direct, confident interactive kinematics
+        // 1. Eyes react fast to cursor
+        const targetEyeY = reduced ? 0 : mouse.x * 0.35;
+        const targetEyeX = reduced ? 0 : -mouse.y * 0.25;
         eyeRot.y = lerp(eyeRot.y, targetEyeY, 1 - Math.exp(-dt * 12));
         eyeRot.x = lerp(eyeRot.x, targetEyeX, 1 - Math.exp(-dt * 12));
 
         // 2. Head follows smoothly with natural damping
-        const targetHeadY = reduced ? -0.1 : mouse.x * 0.22 - 0.08;
-        const targetHeadX = reduced ? 0 : -mouse.y * 0.14;
-        headRot.y = lerp(headRot.y, targetHeadY, 1 - Math.exp(-dt * 4.5));
-        headRot.x = lerp(headRot.x, targetHeadX, 1 - Math.exp(-dt * 4.5));
+        const targetHeadY = reduced ? 0 : mouse.x * 0.24;
+        const targetHeadX = reduced ? 0 : -mouse.y * 0.15;
+        headRot.y = lerp(headRot.y, targetHeadY, 1 - Math.exp(-dt * 5.0));
+        headRot.x = lerp(headRot.x, targetHeadX, 1 - Math.exp(-dt * 5.0));
 
-        // 3. Neck bridges chest and head
-        const targetNeckY = headRot.y * 0.38;
-        const targetNeckX = headRot.x * 0.35;
-        neckRot.y = lerp(neckRot.y, targetNeckY, 1 - Math.exp(-dt * 3.6));
-        neckRot.x = lerp(neckRot.x, targetNeckX, 1 - Math.exp(-dt * 3.6));
+        // 3. Neck bridges torso and head
+        neckRot.y = lerp(neckRot.y, headRot.y * 0.35, 1 - Math.exp(-dt * 3.8));
+        neckRot.x = lerp(neckRot.x, headRot.x * 0.32, 1 - Math.exp(-dt * 3.8));
 
-        // 4. Shoulders follow cursor subtly with slight inertial lag
+        // 4. Shoulders and upper chest follow subtly
         const targetShoulderY = reduced ? 0 : mouse.x * 0.06;
-        const targetShoulderX = reduced ? 0 : -mouse.y * 0.025;
-        shoulderRot.y = lerp(shoulderRot.y, targetShoulderY, 1 - Math.exp(-dt * 2.8));
-        shoulderRot.x = lerp(shoulderRot.x, targetShoulderX, 1 - Math.exp(-dt * 2.8));
+        shoulderRot.y = lerp(shoulderRot.y, targetShoulderY, 1 - Math.exp(-dt * 2.5));
 
-        // 5. Upper body / spine has inertial resistance
-        const targetSpineY = reduced ? 0 : mouse.x * 0.055;
-        const targetSpineX = reduced ? 0 : -mouse.y * 0.022;
-        spineRot.y = lerp(spineRot.y, targetSpineY, 1 - Math.exp(-dt * 2.2));
-        spineRot.x = lerp(spineRot.x, targetSpineX, 1 - Math.exp(-dt * 2.2));
+        // 5. Spine
+        const targetSpineY = reduced ? 0 : mouse.x * 0.05;
+        spineRot.y = lerp(spineRot.y, targetSpineY, 1 - Math.exp(-dt * 2.0));
 
-        // 6. Hips carry minimal grounded reaction
-        const targetHipsY = reduced ? 0 : mouse.x * 0.018;
-        hipsRot.y = lerp(hipsRot.y, targetHipsY, 1 - Math.exp(-dt * 1.6));
+        // Respiration & natural harmonics
+        const breathe = reduced ? 0 : Math.sin(t * 1.2) * 0.01;
+        const chestExpand = reduced ? 0 : Math.sin(t * 1.2 + 0.2) * 0.014;
+        const sway = reduced ? 0 : Math.sin(t * 0.45) * 0.005;
 
-        // 7. Arms passive follow-through lag
-        armLag.leftZ = lerp(armLag.leftZ, spineRot.y * 0.25, 1 - Math.exp(-dt * 2.5));
-        armLag.leftX = lerp(armLag.leftX, -spineRot.x * 0.2, 1 - Math.exp(-dt * 2.5));
-        armLag.rightZ = lerp(armLag.rightZ, -spineRot.y * 0.25, 1 - Math.exp(-dt * 2.5));
-        armLag.rightX = lerp(armLag.rightX, -spineRot.x * 0.2, 1 - Math.exp(-dt * 2.5));
-
-        // 8. Body parallax & organic idle breathing
-        const targetBodyX = reduced ? 0 : mouse.x * 0.045;
-        const targetBodyY = reduced ? 0 : mouse.y * 0.02;
-        bodyPos.x = lerp(bodyPos.x, targetBodyX, 1 - Math.exp(-dt * 1.6));
-        bodyPos.y = lerp(bodyPos.y, targetBodyY, 1 - Math.exp(-dt * 1.6));
-
-        // Respiration & natural micro-motion harmonics
-        const breathe = reduced ? 0 : Math.sin(t * 1.15) * 0.012 + Math.sin(t * 2.3) * 0.002;
-        const chestExpand = reduced ? 0 : Math.sin(t * 1.15 + 0.15) * 0.016;
-        const sway = reduced ? 0 : Math.sin(t * 0.45) * 0.006;
-        const microWeight = reduced ? 0 : Math.cos(t * 0.35) * 0.004;
-        const fingerBreathe = reduced ? 0 : Math.sin(t * 1.15 + 0.3) * 0.015;
-
-        // Helper to retrieve bone rest rotation
         const getRest = (node: THREE.Object3D | null) => {
           if (!node || !rig) return { x: 0, y: 0, z: 0 };
           const r = rig.restRotations.get(node);
           return r ? { x: r.x, y: r.y, z: r.z } : { x: 0, y: 0, z: 0 };
         };
 
-        // Root / Parallax
-        rig.root.position.x = rest.rootX + bodyPos.x + sway * 0.25;
-        // test 
-        // rig.root.position.y = bodyPos.y + breathe * 0.15;
-        rig.root.position.y = rest.rootY + bodyPos.y + breathe * 0.15;
-        rig.root.rotation.y = scrollProgress * -0.15;
+        // Body parallax and breathing
+        const targetBodyX = reduced ? 0 : mouse.x * 0.025;
+        bodyPos.x = lerp(bodyPos.x, targetBodyX, 1 - Math.exp(-dt * 2.0));
 
-        // ==========================================
-        // 1. HIPS & LOWER BODY (Relaxed standing stance)
-        // ==========================================
-        if (rig.hips) {
-          const r = getRest(rig.hips);
-          rig.hips.rotation.set(
-            r.x - 0.015 + microWeight * 0.5,
-            r.y + hipsRot.y + sway * 0.4,
-            r.z + 0.012 + microWeight
-          );
-        }
+        // Root is locked centered at 0 with subtle breathing micro-motion
+        rig.root.position.x = bodyPos.x + sway * 0.3;
+        rig.root.position.y = breathe * 0.15;
+        rig.root.position.z = 0;
 
-        // Left Leg: Inward natural stance, soft unlocked knee, grounded foot
-        if (rig.leftUpLeg) {
-          const r = getRest(rig.leftUpLeg);
-          rig.leftUpLeg.rotation.set(
-            r.x + 0.02 + microWeight * 0.3,
-            r.y - 0.015,
-            r.z + 0.11
-          );
-        }
-        if (rig.leftLeg) {
-          const r = getRest(rig.leftLeg);
-          rig.leftLeg.rotation.set(r.x + 0.08, r.y, r.z);
-        }
-        if (rig.leftFoot) {
-          const r = getRest(rig.leftFoot);
-          rig.leftFoot.rotation.set(r.x - 0.08, r.y + 0.02, r.z);
-        }
-
-        // Right Leg: Carrying relaxed weight, natural foot spacing
-        if (rig.rightUpLeg) {
-          const r = getRest(rig.rightUpLeg);
-          rig.rightUpLeg.rotation.set(
-            r.x - 0.01 - microWeight * 0.3,
-            r.y + 0.015,
-            r.z - 0.09
-          );
-        }
-        if (rig.rightLeg) {
-          const r = getRest(rig.rightLeg);
-          rig.rightLeg.rotation.set(r.x + 0.05, r.y, r.z);
-        }
-        if (rig.rightFoot) {
-          const r = getRest(rig.rightFoot);
-          rig.rightFoot.rotation.set(r.x - 0.05, r.y - 0.02, r.z);
-        }
-
-        // ==========================================
-        // 2. SPINE & TORSO (Natural S-curve posture)
-        // ==========================================
+        // Apply Spine and Chest
         if (rig.spine) {
           const r = getRest(rig.spine);
-          rig.spine.rotation.set(
-            r.x + 0.025 + spineRot.x * 0.3,
-            r.y + spineRot.y * 0.3 - 0.008,
-            r.z - 0.008 + microWeight * 0.3
-          );
+          rig.spine.rotation.set(r.x, r.y + spineRot.y * 0.3, r.z);
         }
         if (rig.spine1) {
           const r = getRest(rig.spine1);
-          rig.spine1.rotation.set(
-            r.x - 0.012 + spineRot.x * 0.5 + chestExpand * 0.35,
-            r.y + spineRot.y * 0.5 - 0.005,
-            r.z + 0.005
-          );
+          rig.spine1.rotation.set(r.x + chestExpand * 0.3, r.y + spineRot.y * 0.5, r.z);
         }
         if (rig.spine2) {
           const r = getRest(rig.spine2);
-          rig.spine2.rotation.set(
-            r.x - 0.02 + spineRot.x + chestExpand * 0.65,
-            r.y + spineRot.y - 0.01,
-            r.z + sway * 0.2
-          );
+          rig.spine2.rotation.set(r.x + chestExpand * 0.6, r.y + spineRot.y * 0.8, r.z);
         }
 
-        // ==========================================
-        // 3. SHOULDERS & ARMS (Naturally hanging beside body)
-        // ==========================================
-        // Shoulders: Relaxed downward poise + breathing rise
+        // Apply Shoulders
         if (rig.leftShoulder) {
           const r = getRest(rig.leftShoulder);
-          rig.leftShoulder.rotation.set(
-            r.x - 0.05 + shoulderRot.x * 0.3,
-            r.y + shoulderRot.y * 0.3 + 0.02,
-            r.z - 0.06 + breathe * 0.4
-          );
+          rig.leftShoulder.rotation.set(r.x, r.y + shoulderRot.y * 0.3, r.z + breathe * 0.2);
         }
         if (rig.rightShoulder) {
           const r = getRest(rig.rightShoulder);
-          rig.rightShoulder.rotation.set(
-            r.x - 0.05 + shoulderRot.x * 0.3,
-            r.y + shoulderRot.y * 0.3 - 0.02,
-            r.z + 0.06 - breathe * 0.4
-          );
+          rig.rightShoulder.rotation.set(r.x, r.y + shoulderRot.y * 0.3, r.z - breathe * 0.2);
         }
 
-        // Left Arm: Naturally hanging alongside torso, slight forward angle, subtle elbow relaxation
-        if (rig.leftArm) {
-          const r = getRest(rig.leftArm);
-          rig.leftArm.rotation.set(
-            r.x + 0.50 + armLag.leftX + breathe * 0.15,
-            r.y + 0.28 + shoulderRot.y * 0.2,
-            r.z - 0.18 + armLag.leftZ + breathe * 0.2
-          );
-        }
-        if (rig.leftForeArm) {
-          const r = getRest(rig.leftForeArm);
-          rig.leftForeArm.rotation.set(
-            r.x - 0.12 + armLag.leftX * 0.5,
-            r.y + 0.12,
-            r.z - 0.08
-          );
-        }
-        if (rig.leftHand) {
-          const r = getRest(rig.leftHand);
-          rig.leftHand.rotation.set(
-            r.x + 0.02,
-            r.y + 0.08,
-            r.z - 0.04
-          );
-        }
-
-        // Right Arm: Naturally hanging alongside torso, slight forward angle, subtle elbow relaxation
-        if (rig.rightArm) {
-          const r = getRest(rig.rightArm);
-          rig.rightArm.rotation.set(
-            r.x + 0.50 + armLag.rightX + breathe * 0.15,
-            r.y - 0.28 + shoulderRot.y * 0.2,
-            r.z + 0.18 + armLag.rightZ - breathe * 0.2
-          );
-        }
-        if (rig.rightForeArm) {
-          const r = getRest(rig.rightForeArm);
-          rig.rightForeArm.rotation.set(
-            r.x - 0.12 + armLag.rightX * 0.5,
-            r.y - 0.12,
-            r.z + 0.08
-          );
-        }
-        if (rig.rightHand) {
-          const r = getRest(rig.rightHand);
-          rig.rightHand.rotation.set(
-            r.x + 0.02,
-            r.y - 0.08,
-            r.z + 0.04
-          );
-        }
-
-        // ==========================================
-        // 4. HANDS & FINGERS (Believable relaxed finger cascade)
-        // ==========================================
-        const applyFingerPose = (fingers: FingerBones, isLeft: boolean) => {
-          const sign = isLeft ? 1 : -1;
-          const fCur = fingerBreathe;
-
-          // Thumb
-          fingers.thumb.forEach((bone, idx) => {
-            const r = getRest(bone);
-            if (idx === 0) {
-              bone.rotation.set(r.x + 0.1 + fCur * 0.4, r.y + sign * 0.04, r.z + sign * 0.12);
-            } else if (idx === 1) {
-              bone.rotation.set(r.x + 0.14 + fCur * 0.5, r.y, r.z + sign * -0.05);
-            } else {
-              bone.rotation.set(r.x + 0.1 + fCur * 0.3, r.y, r.z);
-            }
-          });
-
-          // Index
-          fingers.index.forEach((bone, idx) => {
-            const r = getRest(bone);
-            const curl = (idx === 0 ? 0.22 : idx === 1 ? 0.28 : 0.18) + fCur;
-            bone.rotation.set(r.x + curl, r.y, r.z + sign * (idx === 0 ? 0.03 : 0));
-          });
-
-          // Middle
-          fingers.middle.forEach((bone, idx) => {
-            const r = getRest(bone);
-            const curl = (idx === 0 ? 0.26 : idx === 1 ? 0.32 : 0.22) + fCur;
-            bone.rotation.set(r.x + curl, r.y, r.z);
-          });
-
-          // Ring
-          fingers.ring.forEach((bone, idx) => {
-            const r = getRest(bone);
-            const curl = (idx === 0 ? 0.28 : idx === 1 ? 0.35 : 0.25) + fCur;
-            bone.rotation.set(r.x + curl, r.y, r.z + sign * (idx === 0 ? -0.03 : 0));
-          });
-
-          // Pinky
-          fingers.pinky.forEach((bone, idx) => {
-            const r = getRest(bone);
-            const curl = (idx === 0 ? 0.32 : idx === 1 ? 0.4 : 0.28) + fCur;
-            bone.rotation.set(r.x + curl, r.y, r.z + sign * (idx === 0 ? -0.06 : 0));
-          });
-        };
-
-        if (rig.leftFingers) applyFingerPose(rig.leftFingers, true);
-        if (rig.rightFingers) applyFingerPose(rig.rightFingers, false);
-
-        // ==========================================
-        // 5. NECK, HEAD & EYES (Intact & enhanced)
-        // ==========================================
-        // Neck
+        // Apply Neck & Head
         if (rig.neck) {
           const r = getRest(rig.neck);
           rig.neck.rotation.set(r.x + neckRot.x, r.y + neckRot.y, r.z);
         }
-
-        // Head
         if (rig.head) {
           const r = getRest(rig.head);
           rig.head.rotation.set(r.x + headRot.x, r.y + headRot.y, r.z);
         }
 
-        // Eyes
+        // Apply Eyes
         if (rig.leftEye) {
           const r = getRest(rig.leftEye);
           rig.leftEye.rotation.set(r.x + eyeRot.x, r.y + eyeRot.y, r.z);
@@ -532,14 +441,13 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered
           if (blinkTimer <= 0 && !isBlinking) {
             isBlinking = true;
             blinkPhase = 0;
-            blinkTimer = 3.2 + Math.random() * 3.2;
+            blinkTimer = 3.5 + Math.random() * 3.0;
           }
           if (isBlinking) {
             blinkPhase += dt * 8.5;
             const blinkScale = blinkPhase < 1 ? 1 - blinkPhase : blinkPhase - 1;
-            const eyeYScale = 1 - Math.max(0, Math.min(1, 1 - blinkScale)) * 0.85;
+            const eyeYScale = 1 - Math.max(0, Math.min(1, 1 - blinkScale)) * 0.9;
 
-            // Apply blink scale to eye meshes
             rig.eyeMeshes.forEach((eyeMesh) => {
               eyeMesh.scale.y = eyeYScale;
             });
@@ -553,30 +461,55 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered
           }
         }
 
-        // Floating AI Core Companion
-        const coreTargetX = reduced ? 0 : mouse.x * 0.05 - scrollProgress * 0.1;
-        const coreTargetY = reduced ? 0 : mouse.y * 0.035 + Math.sin(t * 1.35) * 0.03 + scrollProgress * 0.15;
-        corePos.x = lerp(corePos.x, coreTargetX, 1 - Math.exp(-dt * 3.2));
-        corePos.y = lerp(corePos.y, coreTargetY, 1 - Math.exp(-dt * 3.2));
+        // Floating AI Core Dynamic Animation & Gyroscopic Rotations
+        const coreBobY = Math.sin(t * 1.6) * 0.035;
+        const coreBobX = Math.cos(t * 1.1) * 0.015;
+        const coreTargetX = reduced ? 0 : mouse.x * 0.04;
+        const coreTargetY = reduced ? 0 : mouse.y * 0.03;
+        corePos.x = lerp(corePos.x, coreTargetX, 1 - Math.exp(-dt * 3.0));
+        corePos.y = lerp(corePos.y, coreTargetY, 1 - Math.exp(-dt * 3.0));
 
-        rig.aiCore.position.x = rest.coreX + corePos.x;
-        rig.aiCore.position.y = rest.coreY + corePos.y;
-        rig.aiCore.rotation.y = t * 0.38;
-        rig.aiCore.rotation.x = t * 0.18;
+        rig.aiCore.position.x = rest.coreX + corePos.x + coreBobX;
+        rig.aiCore.position.y = rest.coreY + corePos.y + coreBobY;
+
+        // Rotate individual gyro parts
+        const innerMesh = rig.aiCore.children[0];
+        const shellMesh = rig.aiCore.children[1];
+        const ring1 = rig.aiCore.children[2];
+        const ring2 = rig.aiCore.children[3];
+
+        if (innerMesh) {
+          innerMesh.rotation.y = t * 0.6;
+          innerMesh.rotation.x = t * 0.4;
+          const pulse = 1 + Math.sin(t * 3.2) * 0.12;
+          innerMesh.scale.setScalar(pulse);
+        }
+        if (shellMesh) {
+          shellMesh.rotation.y = -t * 0.45;
+          shellMesh.rotation.z = t * 0.3;
+        }
+        if (ring1) {
+          ring1.rotation.z = t * 0.8;
+        }
+        if (ring2) {
+          ring2.rotation.y = -t * 0.65;
+        }
+
         rig.aiCore.getWorldPosition(coreWorld);
         coreLight.position.copy(coreWorld);
 
-        // Animation mixer update if clip present
+        // Animation mixer update if any clips active
         rig.mixer?.update(dt);
-
-        // Camera Scroll Transition
-        camera.position.z = lerp(camera.position.z, rest.camZ + scrollProgress * 0.4, 0.08);
-        camera.position.y = lerp(camera.position.y, rest.camY - scrollProgress * 0.1, 0.08);
-        rig.root.scale.setScalar(rest.scale * (1 - scrollProgress * 0.06));
       }
 
+      // Smooth camera parallax centered on the character
+      camera.position.x = lerp(camera.position.x, mouse.x * 0.08, 1 - Math.exp(-dt * 2.5));
+      camera.position.y = lerp(camera.position.y, rest.camY + mouse.y * 0.04, 1 - Math.exp(-dt * 2.5));
+      camera.position.z = lerp(camera.position.z, rest.camZ, 1 - Math.exp(-dt * 2.5));
+      camera.lookAt(lookTarget);
+
       if (!prefersReducedMotion) {
-        atmosphere.rotation.y = t * 0.018;
+        atmosphere.rotation.y = t * 0.015;
       }
 
       renderer.render(scene, camera);
@@ -592,6 +525,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered
       rest.coreY = loaded.aiCore.position.y;
       scene.add(loaded.root);
       layoutCamera(container.clientWidth, container.clientHeight);
+      applyRenderMode(mode);
     });
 
     animate();
@@ -606,10 +540,16 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered
       rig?.dispose();
       particleGeo?.dispose();
       particleMat?.dispose();
-      shardGeo.dispose();
-      shardMat.dispose();
       shadowGeo.dispose();
       shadowMat.dispose();
+      innerRingGeo.dispose();
+      innerRingMat.dispose();
+      outerRingGeo.dispose();
+      outerRingMat.dispose();
+      tickGeo.dispose();
+      tickMat.dispose();
+      pulseRingGeo.dispose();
+      pulseRingMat.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -617,11 +557,22 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({ centered
     };
   }, [isMobile, prefersReducedMotion]);
 
+  // Handle mode changes dynamically
+  useEffect(() => {
+    applyRenderModeRef.current(mode);
+  }, [mode]);
+
+  const handleContainerClick = () => {
+    pulseTriggerRef.current();
+  };
+
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden"
-      aria-hidden="true"
+      onClick={handleContainerClick}
+      className="absolute inset-0 w-full h-full cursor-pointer z-0 overflow-hidden select-none"
+      title="Click 3D Viewport to Trigger Quantum Pulse"
+      aria-label="Interactive 3D Agent Model Canvas"
     />
   );
 };
