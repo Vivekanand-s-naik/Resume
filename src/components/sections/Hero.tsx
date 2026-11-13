@@ -165,32 +165,48 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
         </div>
       </motion.div>
 
-      {/* Asymmetric Editorial Grid Main Body */}
+      {/* Asymmetric Editorial Grid Main Body - Mobile First Highlight: 3D Character Viewport */}
       <div className="max-w-[1700px] w-full mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 z-10">
         {/* Left Editorial Cell - Typographic Hierarchy & Interactive Simulation */}
         <motion.div
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-          className="lg:col-span-7 xl:col-span-7 flex flex-col justify-between p-6 sm:p-10 md:p-12 lg:border-r border-white/10"
+          className="order-2 lg:order-1 lg:col-span-7 xl:col-span-7 flex flex-col justify-between p-6 sm:p-10 md:p-12 lg:border-r border-white/10"
         >
           <div>
-            <div className="flex items-center gap-2 text-xs font-mono text-neutral-400 uppercase tracking-widest mb-6">
-              <span className="text-white font-bold">[01.0 // TECHNICAL POSITIONING]</span>
-              <span className="text-neutral-600">&bull;</span>
-              <span className="text-neutral-400">DEV_IDENTITY: 0xVN</span>
+            {/* Cybernetic Callsign & Positioning Tag */}
+            <div className="flex flex-wrap items-center gap-2.5 mb-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00FF66]/10 border border-[#00FF66]/30 text-[#00FF66] font-mono text-[11px] tracking-wider uppercase font-semibold">
+                <span className="w-1.5 h-1.5 bg-[#00FF66] animate-pulse" />
+                <span>{PROFILE.callsign || '0xVN // PROTOCOL ARCHITECT'}</span>
+              </span>
+              <span className="text-neutral-500 font-mono text-xs hidden sm:inline">&bull;</span>
+              <span className="text-neutral-400 font-mono text-xs hidden sm:inline">
+                aka Vivekanand S. Naik
+              </span>
             </div>
 
-            {/* Heavy High-Contrast Sans-Serif Headline with Tight Tracking */}
+            {/* Heavy High-Contrast Headline with Light Green Gradient Accent */}
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.25rem] xl:text-[6.25rem] font-black uppercase tracking-tight leading-[0.88] text-white font-display select-none">
               {PROFILE.heroHeadingPrefix}
               <br />
-              <span className="text-neutral-300">{PROFILE.heroHeadingName}.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#00FF66] to-[#10B981] drop-shadow-[0_0_24px_rgba(0,255,102,0.35)]">
+                {PROFILE.heroHeadingName}.
+              </span>
             </h1>
 
+            {/* Grounded Technical Identity Line */}
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-mono text-neutral-400">
+              <span className="text-[#00FF66] font-semibold">[SYS_DEV]</span>
+              <span className="text-neutral-200 font-medium">{PROFILE.fullName}</span>
+              <span className="text-neutral-600">&bull;</span>
+              <span className="text-neutral-400">Full-Stack &amp; Agentic Systems</span>
+            </div>
+
             {/* Specific Grounded Technical Positioning */}
-            <div className="mt-6 sm:mt-7 max-w-2xl">
-              <p className="text-lg sm:text-xl md:text-2xl text-neutral-200 font-normal leading-relaxed tracking-tight">
+            <div className="mt-5 sm:mt-6 max-w-2xl">
+              <p className="text-base sm:text-lg md:text-xl text-neutral-300 font-normal leading-relaxed tracking-tight">
                 {PROFILE.heroTagline}
               </p>
             </div>
@@ -353,11 +369,11 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
             </div>
 
             {/* High-Contrast Monochrome CTAs */}
-            <div className="mt-6 flex flex-wrap items-center gap-4">
+            <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <button
                 type="button"
                 onClick={onOpenContact}
-                className="group inline-flex items-center gap-3 px-7 sm:px-8 py-3.5 bg-white text-black font-mono text-xs uppercase tracking-widest font-bold border border-white hover:bg-neutral-200 transition-all duration-150 cursor-pointer select-none active:translate-y-0.5 rounded-none"
+                className="group inline-flex items-center justify-center gap-3 px-7 sm:px-8 py-3.5 bg-white text-black font-mono text-xs uppercase tracking-widest font-bold border border-white hover:bg-neutral-200 transition-all duration-150 cursor-pointer select-none active:translate-y-0.5 rounded-none"
                 aria-label="Initiate contact"
               >
                 <span>INITIATE CONTACT</span>
@@ -367,7 +383,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
               <button
                 type="button"
                 onClick={scrollToWork}
-                className="inline-flex items-center gap-2.5 px-6 sm:px-7 py-3.5 border border-white/20 hover:border-white text-white hover:bg-white/[0.04] font-mono text-xs uppercase tracking-widest transition-all duration-150 cursor-pointer select-none rounded-none"
+                className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3.5 border border-white/20 hover:border-white text-white hover:bg-white/[0.04] font-mono text-xs uppercase tracking-widest transition-all duration-150 cursor-pointer select-none rounded-none"
                 aria-label="Inspect architecture systems"
               >
                 <span>INSPECT SYSTEMS</span>
@@ -384,12 +400,12 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
           </div>
         </motion.div>
 
-        {/* Right Editorial Cell - Functional Interactive Agentic 3D Viewport */}
+        {/* Right Editorial Cell - Functional Interactive Agentic 3D Viewport (Prominent First Highlight on Mobile) */}
         <motion.div
           initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-          className="lg:col-span-5 xl:col-span-5 flex flex-col bg-[#0F1115]/50 relative border-t lg:border-t-0 border-white/10"
+          className="order-1 lg:order-2 lg:col-span-5 xl:col-span-5 flex flex-col bg-[#0F1115]/50 relative border-b lg:border-b-0 border-white/10"
         >
           {/* Viewport Top Header with Interactive Render Mode & Camera Director */}
           <div className="w-full border-b border-white/10 px-4 py-2.5 flex flex-wrap items-center justify-between text-[11px] font-mono bg-black/40 z-10 gap-2">
@@ -436,7 +452,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
           </div>
 
           {/* Viewport Canvas Frame - Generous height guaranteeing centered fit */}
-          <div className="relative flex-1 min-h-[480px] sm:min-h-[560px] lg:min-h-[640px] overflow-hidden">
+          <div className="relative flex-1 h-[440px] sm:h-[520px] lg:h-full lg:min-h-[640px] overflow-hidden">
             {/* Sharp Corner Grid Markers */}
             <span className="absolute top-3 left-3 text-white/30 font-mono text-xs select-none pointer-events-none z-10">
               +
@@ -462,19 +478,20 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
             />
 
             {/* Realtime Telemetry HUD Overlay */}
-            <div className="absolute top-4 left-4 z-10 font-mono text-[10px] space-y-1.5 bg-black/85 backdrop-blur-sm border border-white/10 p-3 text-neutral-400 select-none pointer-events-none max-w-[230px]">
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 font-mono text-[9px] sm:text-[10px] space-y-1 sm:space-y-1.5 bg-black/85 backdrop-blur-md border border-white/10 p-2 sm:p-3 text-neutral-400 select-none pointer-events-none max-w-[190px] sm:max-w-[230px]">
               <div className="text-white font-medium tracking-wide flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-[#00FF66]" />
-                <span className="text-white font-bold">// AGENTIC NODE HUD</span>
+                <span className="text-white font-bold">// 3D AGENTIC NODE</span>
               </div>
-              <div>
-                STATUS: <span className="text-[#00FF66]">ONLINE &bull; SYNCHRONIZED</span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00FF66] animate-pulse" />
+                <span>ONLINE &bull; SYNCHRONIZED</span>
               </div>
               <div>
                 ACTIVE POSE: <span className="text-white uppercase font-bold">{currentGesture}</span>
               </div>
-              <div>
-                SKELETAL MOCAP: <span className="text-neutral-300 font-medium">53 BONES ACTIVE</span>
+              <div className="hidden xs:block">
+                SKELETAL MOCAP: <span className="text-neutral-300 font-medium">53 BONES</span>
               </div>
               <div>
                 FPS: <span className="text-[#00FF66]">60</span> &bull; LATENCY: <span className="text-neutral-300">&lt;16MS</span>
@@ -482,23 +499,28 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
             </div>
 
             {/* Top-Right Manual Gesture Cycling Button */}
-            <div className="absolute top-4 right-4 z-10">
+            <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
               <button
                 type="button"
                 onClick={handleCycleGesture}
-                className="px-2.5 py-1.5 bg-black/80 hover:bg-black border border-white/20 hover:border-[#00FF66] text-[10px] font-mono text-white flex items-center gap-1.5 transition-all cursor-pointer shadow-lg active:scale-95"
-                title="Click to trigger next human arm gesture"
+                className="px-2.5 py-1.5 bg-black/85 hover:bg-black border border-white/20 hover:border-[#00FF66] text-[9px] sm:text-[10px] font-mono text-white flex items-center gap-1.5 transition-all cursor-pointer shadow-lg active:scale-95 backdrop-blur-md"
+                title="Click or tap to trigger next mocap gesture"
                 aria-label="Cycle next gesture"
               >
                 <RotateCcw className="w-3 h-3 text-[#00FF66]" />
-                <span className="uppercase">CYCLE GESTURE</span>
+                <span className="uppercase font-semibold">CYCLE GESTURE</span>
               </button>
             </div>
 
-            {/* Bottom-Right Interactive Kinematics Indicator */}
-            <div className="absolute bottom-4 right-4 z-10 font-mono text-[10px] bg-black/85 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-neutral-400 flex items-center gap-2 select-none pointer-events-none">
-              <span className="w-1.5 h-1.5 bg-[#00FF66] animate-pulse" />
-              <span>CLICK TO TRIGGER GESTURE &amp; QUANTUM PULSE</span>
+            {/* Bottom Interactive Kinematics Indicator */}
+            <div className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-4 z-10 font-mono text-[9px] sm:text-[10px] bg-black/85 backdrop-blur-md border border-white/10 px-3 py-1.5 text-neutral-300 flex items-center justify-between sm:justify-start gap-2 select-none pointer-events-none">
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-[#00FF66] animate-pulse shrink-0" />
+                <span className="font-semibold text-white">TAP AVATAR TO TRIGGER GESTURES &amp; PULSE</span>
+              </span>
+              <span className="text-[#00FF66] text-[8px] sm:hidden font-mono font-bold tracking-widest shrink-0">
+                INTERACTIVE
+              </span>
             </div>
           </div>
 

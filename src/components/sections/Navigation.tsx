@@ -70,10 +70,15 @@ export const Navigation: React.FC<NavigationProps> = ({
               }}
               className="group flex items-center gap-2.5 select-none"
             >
-              <div className="w-2 h-2 bg-white group-hover:bg-[#00FF66] transition-colors" />
-              <span className="font-mono font-bold tracking-widest uppercase text-xs sm:text-sm text-white group-hover:text-neutral-300 transition-colors">
-                {PROFILE.name}
-              </span>
+              <div className="w-2 h-2 bg-[#00FF66] shadow-[0_0_8px_#00FF66] group-hover:scale-125 transition-all" />
+              <div className="flex items-center gap-1.5 font-mono">
+                <span className="font-bold tracking-widest uppercase text-xs sm:text-sm text-white group-hover:text-[#00FF66] transition-colors">
+                  {PROFILE.name}
+                </span>
+                <span className="text-[10px] text-[#00FF66] font-semibold tracking-wider hidden sm:inline">
+                  // 0xVN
+                </span>
+              </div>
             </a>
           </Magnetic>
 

@@ -1,9 +1,11 @@
 export const PROFILE = {
   name: "VIVEK NAIK",
-  fullName: "Vivekanand Naik",
+  fullName: "Vivekanand S. Naik",
+  callsign: "0xVN // PROTOCOL ARCHITECT",
+  alias: "VIVEK NAIK",
   role: "FULL-STACK & AGENTIC SYSTEMS DEVELOPER",
   titleEditorial: "FULL-STACK & AGENTIC SYSTEMS DEVELOPER",
-  heroHeadingPrefix: "VIVEKANAND",
+  heroHeadingPrefix: "VIVEK",
   heroHeadingName: "NAIK",
   heroTagline: "Full-Stack Engineer & Agentic Systems Developer specializing in stateful LLM workflows, LangGraph, and high-concurrency architectures.",
   disciplines: [

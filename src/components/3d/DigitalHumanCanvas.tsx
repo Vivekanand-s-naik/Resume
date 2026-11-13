@@ -576,8 +576,8 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     <div
       ref={containerRef}
       onClick={handleContainerClick}
-      className="absolute inset-0 w-full h-full cursor-pointer z-0 overflow-hidden select-none"
-      title="Click 3D Viewport to Trigger Next Human Gesture & Quantum Pulse"
+      className="absolute inset-0 w-full h-full cursor-pointer z-0 overflow-hidden select-none touch-pan-y"
+      title="Click or Tap 3D Viewport to Trigger Next Human Gesture & Quantum Pulse"
       aria-label="Interactive 3D Agent Model Canvas"
     />
   );
