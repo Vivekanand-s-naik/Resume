@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PROFILE } from '../../data/profile';
-import {
-  DigitalHumanCanvas,
+import DigitalHumanCanvas, {
   CharacterRenderMode,
   CameraPreset,
   GesturePose,
@@ -405,10 +404,10 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
           initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-          className="order-1 lg:order-2 lg:col-span-5 xl:col-span-5 flex flex-col bg-[#0F1115]/50 relative border-b lg:border-b-0 border-white/10"
+          className="order-1 lg:order-2 lg:col-span-5 xl:col-span-5 flex flex-col bg-[#0F1115]/50 relative border-b lg:border-b-0 border-white/10 w-full min-h-[520px] sm:min-h-[580px] lg:min-h-[640px]"
         >
           {/* Viewport Top Header with Interactive Render Mode & Camera Director */}
-          <div className="w-full border-b border-white/10 px-4 py-2.5 flex flex-wrap items-center justify-between text-[11px] font-mono bg-black/40 z-10 gap-2">
+          <div className="w-full border-b border-white/10 px-4 py-2.5 flex flex-wrap items-center justify-between text-[11px] font-mono bg-black/40 z-10 gap-2 shrink-0">
             <div className="flex items-center gap-2">
               <span className="text-white font-medium">[NODE_01 // AGENT_VIEWPORT]</span>
             </div>
@@ -451,8 +450,8 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
             </div>
           </div>
 
-          {/* Viewport Canvas Frame - Generous height guaranteeing centered fit */}
-          <div className="relative flex-1 h-[440px] sm:h-[520px] lg:h-full lg:min-h-[640px] overflow-hidden">
+          {/* Viewport Canvas Frame - Explicit min-height ensures it never collapses on mobile */}
+          <div className="relative w-full flex-1 h-[460px] sm:h-[540px] min-h-[460px] sm:min-h-[540px] lg:min-h-[640px] overflow-hidden">
             {/* Sharp Corner Grid Markers */}
             <span className="absolute top-3 left-3 text-white/30 font-mono text-xs select-none pointer-events-none z-10">
               +
@@ -525,7 +524,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
           </div>
 
           {/* Viewport Bottom Footer */}
-          <div className="w-full border-t border-white/10 px-4 py-2.5 flex items-center justify-between text-[10px] font-mono text-neutral-500 bg-black/40 z-10">
+          <div className="w-full border-t border-white/10 px-4 py-2.5 flex items-center justify-between text-[10px] font-mono text-neutral-500 bg-black/40 z-10 shrink-0">
             <span>PIPELINE: EVALUATE → ROUTE → STREAM</span>
             <span>FPS: 60 // P99 &lt;16MS</span>
           </div>

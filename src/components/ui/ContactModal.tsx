@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, Check, Send, Sparkles, Terminal } from 'lucide-react';
+import { X, Copy, Check, Send, Sparkles, Terminal, Mail } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PROFILE } from '../../data/profile';
 
@@ -27,11 +27,39 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
     setTimeout(() => setCopied(false), 3000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSending(true);
 
-    setTimeout(() => {
+    try {
+      // 1. Direct transmission to inbox via FormSubmit API
+      const res = await fetch(`https://formsubmit.co/ajax/${PROFILE.socials.email}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          scope: formData.topic,
+          message: formData.message,
+          _subject: `[PORTFOLIO TRANSMISSION] ${formData.topic} from ${formData.name}`,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('API dispatch failed');
+      }
+    } catch {
+      // 2. Resilient fallback: open pre-filled email client so message is never lost
+      const mailtoUrl = `mailto:${PROFILE.socials.email}?subject=${encodeURIComponent(
+        `[PORTFOLIO TRANSMISSION] ${formData.topic} - from ${formData.name}`
+      )}&body=${encodeURIComponent(
+        `Hi Vivek,\n\n${formData.message}\n\n---\nFrom: ${formData.name}\nEmail: ${formData.email}\nScope: ${formData.topic}`
+      )}`;
+      window.open(mailtoUrl, '_blank');
+    } finally {
       setIsSending(false);
       setIsSubmitted(true);
       confetti({
@@ -40,7 +68,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         origin: { y: 0.5 },
         colors: ['#00FF66', '#10B981', '#FFFFFF', '#059669'],
       });
-    }, 900);
+    }
   };
 
   return (
@@ -91,19 +119,29 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   <Sparkles className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
-                  Message Dispatched
+                  Transmission Dispatched
                 </h3>
                 <p className="text-[#8E9AA4] max-w-md mx-auto text-sm sm:text-base">
-                  Thank you for reaching out. I've received your transmission and will respond directly to{' '}
-                  <span className="text-white font-mono">{formData.email}</span>.
+                  Thank you, <span className="text-white font-semibold">{formData.name}</span>. Your transmission has been dispatched to{' '}
+                  <span className="text-[#00FF66] font-mono">{PROFILE.socials.email}</span>.
                 </p>
-                <div className="pt-4">
+                <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
+                  <a
+                    href={`mailto:${PROFILE.socials.email}?subject=${encodeURIComponent(
+                      `[PORTFOLIO TRANSMISSION] ${formData.topic} - from ${formData.name}`
+                    )}&body=${encodeURIComponent(
+                      `Hi Vivek,\n\n${formData.message}\n\n---\nFrom: ${formData.name}\nEmail: ${formData.email}\nScope: ${formData.topic}`
+                    )}`}
+                    className="px-5 py-2.5 rounded-full bg-[#00FF66] text-black font-bold text-xs uppercase tracking-wider hover:bg-[#10B981] transition-colors"
+                  >
+                    Open in Mail App (Backup)
+                  </a>
                   <button
                     onClick={() => {
                       setIsSubmitted(false);
                       onClose();
                     }}
-                    className="px-6 py-3 rounded-full bg-white text-black font-semibold text-sm hover:bg-[#D7E2EA] transition-colors uppercase tracking-wider"
+                    className="px-5 py-2.5 rounded-full bg-white/10 text-white font-medium text-xs uppercase tracking-wider hover:bg-white/20 transition-colors border border-white/10"
                   >
                     Return to Portfolio
                   </button>
@@ -111,7 +149,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
               </div>
             ) : (
               <div className="pt-6 space-y-6">
-                {/* Direct Email Quick Copy Pill */}
+                {/* Direct Email Quick Copy & Direct Mailto Pill */}
                 <div className="p-4 rounded-2xl bg-[#0C0D11] border border-[#262A30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <Terminal className="w-5 h-5 text-[#00FF66] shrink-0" />
@@ -119,27 +157,41 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                       <div className="text-xs text-[#8E9AA4] uppercase tracking-wider font-mono">
                         Direct Inbox
                       </div>
-                      <div className="text-sm font-mono text-white select-all">
+                      <a
+                        href={`mailto:${PROFILE.socials.email}`}
+                        className="text-sm font-mono text-white hover:text-[#00FF66] transition-colors select-all"
+                      >
                         {PROFILE.socials.email}
-                      </div>
+                      </a>
                     </div>
                   </div>
-                  <button
-                    onClick={handleCopy}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs uppercase tracking-wider font-medium transition-colors shrink-0"
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-[#00FF66]" />
-                        <span className="text-[#00FF66]">Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Copy Email</span>
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <a
+                      href={`mailto:${PROFILE.socials.email}`}
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#00FF66]/15 hover:bg-[#00FF66]/25 text-[#00FF66] border border-[#00FF66]/30 text-xs uppercase tracking-wider font-medium transition-colors"
+                      title="Open default email application"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Mail App</span>
+                    </a>
+                    <button
+                      onClick={handleCopy}
+                      type="button"
+                      className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs uppercase tracking-wider font-medium transition-colors"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-[#00FF66]" />
+                          <span className="text-[#00FF66]">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Form */}

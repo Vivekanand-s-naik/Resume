@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { loadDigitalHuman } from './digitalHuman/loadCharacterModel';
@@ -33,6 +33,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
   onPoseChange,
   onTriggerPulse,
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const prefersReducedMotion = false;
@@ -73,6 +74,12 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     renderer.toneMappingExposure = 1.15;
     const dprCap = prefersReducedMotion ? 1 : isMobile ? 1.25 : 1.75;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, dprCap));
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.top = '0';
+    renderer.domElement.style.left = '0';
     container.appendChild(renderer.domElement);
 
     // Studio Key & Rim Lighting
@@ -271,13 +278,14 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       window.addEventListener('mousemove', onMouseMove, { passive: true });
     }
 
-    // Dynamic Camera Framing
+    // Dynamic Camera Framing with robust mobile dimension fallbacks
     const layoutCamera = (width: number, height: number) => {
-      if (!width || !height) return;
-      const aspect = width / height;
+      const w = Math.max(width || container.clientWidth || (isMobile ? 360 : 600), 200);
+      const h = Math.max(height || container.clientHeight || (isMobile ? 480 : 640), 200);
+      const aspect = w / h;
       camera.aspect = aspect;
       camera.updateProjectionMatrix();
-      renderer.setSize(width, height, false);
+      renderer.setSize(w, h, false);
 
       const vFovRad = THREE.MathUtils.degToRad(camera.fov);
       const reqDistY = (1.18 / 2) / Math.tan(vFovRad / 2);
@@ -307,9 +315,9 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     let isVisible = true;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        isVisible = entry.isIntersecting;
+        isVisible = isMobile ? true : entry.isIntersecting;
       },
-      { threshold: 0.05 }
+      { threshold: 0.01 }
     );
     observer.observe(container);
 
@@ -374,7 +382,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     // The Main Kinematics Animation Loop
     const animate = () => {
       animationId = requestAnimationFrame(animate);
-      if (!isVisible || disposed) return;
+      if ((!isVisible && !isMobile) || disposed) return;
 
       const dt = Math.min(clock.getDelta(), 0.05);
       const t = clock.elapsedTime;
@@ -517,6 +525,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       currentPose = initialPose;
       currentGestureRef.current = initialPose;
       poseTimer = getPoseHoldDuration(initialPose);
+      setIsLoading(false);
     });
 
     animate();
@@ -573,12 +582,27 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
   };
 
   return (
-    <div
-      ref={containerRef}
-      onClick={handleContainerClick}
-      className="absolute inset-0 w-full h-full cursor-pointer z-0 overflow-hidden select-none touch-pan-y"
-      title="Click or Tap 3D Viewport to Trigger Next Human Gesture & Quantum Pulse"
-      aria-label="Interactive 3D Agent Model Canvas"
-    />
+    <>
+      <div
+        ref={containerRef}
+        onClick={handleContainerClick}
+        className="absolute inset-0 w-full h-full cursor-pointer z-0 overflow-hidden select-none touch-pan-y"
+        title="Click or Tap 3D Viewport to Trigger Next Human Gesture & Quantum Pulse"
+        aria-label="Interactive 3D Agent Model Canvas"
+      />
+      {isLoading && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10 gap-2 font-mono text-xs bg-[#090A0D]/70 backdrop-blur-sm">
+          <div className="w-8 h-8 rounded-full border-2 border-[#00FF66] border-t-transparent animate-spin" />
+          <span className="text-white font-bold tracking-widest text-[11px] uppercase">
+            CALIBRATING 3D SKELETAL NODE...
+          </span>
+          <span className="text-[#8E9AA4] text-[9px] tracking-wider">
+            [ Ready Player Me + Mixamo Kinematics ]
+          </span>
+        </div>
+      )}
+    </>
   );
 };
+
+export default DigitalHumanCanvas;

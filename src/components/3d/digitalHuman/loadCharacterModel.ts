@@ -18,10 +18,7 @@ export const ANIMATION_URLS: Record<GesturePose, string> = {
   dance: '/models/animations/dance.glb',
 };
 
-const USER_FBX_PATHS: Partial<Record<GesturePose, string>> = {
-  dance: '/models/animations/mixamo/hiphop.fbx',
-  waving: '/models/animations/mixamo/waving.fbx',
-};
+const USER_FBX_PATHS: Partial<Record<GesturePose, string>> = {};
 
 /**
  * Normalizes bone names in Mixamo animation clips to match Ready Player Me armature
