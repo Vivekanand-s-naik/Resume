@@ -141,11 +141,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors text-left group cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-white/5 group-hover:bg-[#7621B0]/30 text-[#D7E2EA] group-hover:text-[#00F0FF] transition-colors">
+                      <div className="p-2 rounded-lg bg-white/5 group-hover:bg-[#00FF66]/20 text-[#D7E2EA] group-hover:text-[#00FF66] transition-colors">
                         <Icon className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-white group-hover:text-[#00F0FF] transition-colors">
+                        <div className="text-sm font-medium text-white group-hover:text-[#00FF66] transition-colors">
                           {item.title}
                         </div>
                         <div className="text-xs text-[#8E9AA4]">

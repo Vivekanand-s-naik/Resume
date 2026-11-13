@@ -47,7 +47,7 @@ export const CapabilityList: React.FC = () => {
                   aria-expanded={isExpanded}
                 >
                   <div className="flex items-center gap-6 sm:gap-10">
-                    <span className="text-2xl sm:text-4xl font-black font-mono text-[#5A646E] group-hover:text-[#00F0FF] transition-colors">
+                    <span className="text-2xl sm:text-4xl font-black font-mono text-[#5A646E] group-hover:text-[#00FF66] transition-colors">
                       {cap.number}
                     </span>
                     <div>
@@ -64,9 +64,9 @@ export const CapabilityList: React.FC = () => {
                     <span className="text-xs font-mono text-[#8E9AA4] hidden lg:inline-block">
                       {cap.technologies.slice(0, 3).join(' • ')}
                     </span>
-                    <div className="w-10 h-10 rounded-full border border-[#262A30] group-hover:border-[#00F0FF] flex items-center justify-center transition-colors">
+                    <div className="w-10 h-10 rounded-full border border-[#262A30] group-hover:border-[#00FF66] flex items-center justify-center transition-colors">
                       {isExpanded ? (
-                        <Minus className="w-4 h-4 text-[#00F0FF]" />
+                        <Minus className="w-4 h-4 text-[#00FF66]" />
                       ) : (
                         <Plus className="w-4 h-4 text-[#8E9AA4] group-hover:text-white" />
                       )}
@@ -85,7 +85,7 @@ export const CapabilityList: React.FC = () => {
                   >
                     <div className="p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] bg-[#090A0D] border border-[#262A30] grid grid-cols-1 lg:grid-cols-12 gap-8">
                       <div className="lg:col-span-5 space-y-4">
-                        <div className="text-xs font-mono uppercase tracking-wider text-[#00F0FF]">
+                        <div className="text-xs font-mono uppercase tracking-wider text-[#00FF66]">
                           Architectural Scope
                         </div>
                         <p className="text-sm sm:text-base text-[#D7E2EA] font-light leading-relaxed">
@@ -94,8 +94,8 @@ export const CapabilityList: React.FC = () => {
                       </div>
 
                       <div className="lg:col-span-7 space-y-4">
-                        <div className="text-xs font-mono uppercase tracking-wider text-[#B600A8]">
-                          Key Invariants & Strengths
+                        <div className="text-xs font-mono uppercase tracking-wider text-white">
+                          Key Invariants &amp; Strengths
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {cap.coreStrengths.map((strength, sIdx) => (
@@ -103,7 +103,7 @@ export const CapabilityList: React.FC = () => {
                               key={sIdx}
                               className="flex items-start gap-2.5 p-3 rounded-xl bg-[#12141A] border border-[#262A30]/80"
                             >
-                              <CheckCircle2 className="w-4 h-4 text-[#39FF14] shrink-0 mt-0.5" />
+                              <CheckCircle2 className="w-4 h-4 text-[#00FF66] shrink-0 mt-0.5" />
                               <span className="text-xs text-[#D7E2EA] font-mono leading-tight">
                                 {strength}
                               </span>

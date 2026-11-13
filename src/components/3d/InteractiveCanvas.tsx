@@ -83,10 +83,10 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({ type, clas
       const cols = new Float32Array(clusterCount * 3);
 
       const colorPalette = [
-        new THREE.Color('#7621B0'),
-        new THREE.Color('#B600A8'),
-        new THREE.Color('#00F0FF'),
-        new THREE.Color('#39FF14'),
+        new THREE.Color('#00FF66'),
+        new THREE.Color('#10B981'),
+        new THREE.Color('#34D399'),
+        new THREE.Color('#059669'),
       ];
 
       for (let i = 0; i < clusterCount; i++) {

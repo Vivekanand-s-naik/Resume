@@ -52,13 +52,13 @@ export const CustomCursor: React.FC = () => {
       />
       {/* Trailing orbital ring */}
       <motion.div
-        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-[#00F0FF]/50 pointer-events-none"
+        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-[#00FF66]/50 pointer-events-none"
         animate={{
           x: mousePosition.x - 16,
           y: mousePosition.y - 16,
           scale: isHovered ? 1.6 : 1,
-          borderColor: isHovered ? '#B600A8' : '#00F0FF',
-          backgroundColor: isHovered ? 'rgba(182, 0, 168, 0.1)' : 'rgba(0, 240, 255, 0)',
+          borderColor: isHovered ? '#10B981' : '#00FF66',
+          backgroundColor: isHovered ? 'rgba(0, 255, 102, 0.15)' : 'rgba(0, 255, 102, 0)',
         }}
         transition={{ type: 'spring', stiffness: 350, damping: 25 }}
       />

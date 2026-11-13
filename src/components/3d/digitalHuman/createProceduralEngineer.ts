@@ -69,8 +69,8 @@ export function createProceduralEngineer(quality: CharacterQuality): DigitalHuma
   );
   const accent = trackMat(
     new THREE.MeshStandardMaterial({
-      color: '#0a2a2e',
-      emissive: '#00F0FF',
+      color: '#0a2e16',
+      emissive: '#00FF66',
       emissiveIntensity: 0.22,
       roughness: 0.35,
       metalness: 0.4,
@@ -84,15 +84,15 @@ export function createProceduralEngineer(quality: CharacterQuality): DigitalHuma
   const lip = trackMat(makePhysical('#b0897c', { roughness: 0.4 }));
   const coreInner = trackMat(
     new THREE.MeshStandardMaterial({
-      color: '#8eefff',
-      emissive: '#00F0FF',
+      color: '#a7f3d0',
+      emissive: '#00FF66',
       emissiveIntensity: 0.55,
       roughness: 0.2,
     })
   );
   const coreShell = trackMat(
     new THREE.MeshBasicMaterial({
-      color: '#00F0FF',
+      color: '#00FF66',
       wireframe: true,
       transparent: true,
       opacity: 0.28,

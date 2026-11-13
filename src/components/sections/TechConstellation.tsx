@@ -27,8 +27,8 @@ export const TechConstellation: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-12 editorial-border-b mb-12 gap-6">
           <div>
-            <div className="font-mono text-xs text-[#00F0FF] uppercase tracking-widest mb-3 flex items-center gap-2">
-              <Network className="w-4 h-4 text-[#00F0FF]" />
+            <div className="font-mono text-xs text-[#00FF66] uppercase tracking-widest mb-3 flex items-center gap-2">
+              <Network className="w-4 h-4 text-[#00FF66]" />
               <span>// 06 SYSTEM STACK CONSTELLATION</span>
             </div>
             <h2 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tight text-white leading-none">
@@ -79,7 +79,7 @@ export const TechConstellation: React.FC = () => {
                     y1={`${node.y}%`}
                     x2={`${targetNode.x}%`}
                     y2={`${targetNode.y}%`}
-                    stroke={isConnected ? '#00F0FF' : 'rgba(215, 226, 234, 0.1)'}
+                    stroke={isConnected ? '#00FF66' : 'rgba(215, 226, 234, 0.1)'}
                     strokeWidth={isConnected ? 2 : 1}
                     strokeDasharray={isConnected ? 'none' : '4 4'}
                     className="transition-all duration-300"
@@ -114,9 +114,9 @@ export const TechConstellation: React.FC = () => {
                 <div
                   className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border text-xs sm:text-sm font-mono whitespace-nowrap transition-all duration-300 flex items-center gap-2 ${
                     isHovered
-                      ? 'bg-[#00F0FF] text-black font-bold border-white shadow-[0_0_20px_#00F0FF]'
+                      ? 'bg-[#00FF66] text-black font-bold border-white shadow-[0_0_20px_#00FF66]'
                       : isConnected
-                      ? 'bg-[#7621B0] text-white font-medium border-[#00F0FF] shadow-[0_0_15px_#7621B0]'
+                      ? 'bg-[#052e16] text-[#00FF66] font-medium border-[#00FF66] shadow-[0_0_15px_rgba(0,255,102,0.3)]'
                       : 'bg-[#12141A]/90 text-[#D7E2EA] border-[#262A30] group-hover:border-white'
                   }`}
                 >
@@ -125,8 +125,8 @@ export const TechConstellation: React.FC = () => {
                       isHovered
                         ? 'bg-black'
                         : isConnected
-                        ? 'bg-[#00F0FF]'
-                        : 'bg-[#7621B0]'
+                        ? 'bg-[#00FF66]'
+                        : 'bg-[#00FF66]/50'
                     }`}
                   />
                   {node.name}
@@ -138,7 +138,7 @@ export const TechConstellation: React.FC = () => {
           {/* Bottom Telemetry HUD */}
           <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-[#0C0C0C]/90 border border-[#262A30] backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 z-30 pointer-events-none">
             <div className="flex items-center gap-3">
-              <Info className="w-4 h-4 text-[#00F0FF] shrink-0" />
+              <Info className="w-4 h-4 text-[#00FF66] shrink-0" />
               <span className="text-xs font-mono text-[#8E9AA4]">
                 {hoveredNode
                   ? `${hoveredNode.name.toUpperCase()} // ${hoveredNode.description}`

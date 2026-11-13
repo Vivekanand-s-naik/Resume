@@ -34,7 +34,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
           {/* Header */}
           <div className="flex items-center justify-between pb-6 border-b border-[#262A30]">
             <div className="flex items-center gap-3">
-              <span className="text-2xl font-black font-mono text-[#00F0FF]">
+              <span className="text-2xl font-black font-mono text-[#00FF66]">
                 {project.number}
               </span>
               <span className="text-xs font-mono uppercase tracking-widest text-[#8E9AA4] px-3 py-1 rounded-full bg-white/5 border border-white/10">
@@ -68,7 +68,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
             </div>
             <div>
               <span className="text-[#8E9AA4]">TIMELINE: </span>
-              <span className="text-[#00F0FF]">{project.period}</span>
+              <span className="text-[#00FF66]">{project.period}</span>
             </div>
           </div>
 
@@ -87,8 +87,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
               </div>
 
               <div className="p-5 rounded-2xl bg-[#151820]/70 border border-[#262A30]">
-                <div className="text-xs font-mono uppercase tracking-wider text-[#39FF14] mb-2 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#39FF14]" />
+                <div className="text-xs font-mono uppercase tracking-wider text-[#00FF66] mb-2 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#00FF66]" />
                   Engineering Solution
                 </div>
                 <p className="text-xs sm:text-sm text-[#D7E2EA] font-light leading-relaxed">
@@ -99,9 +99,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
             {/* AI & Systems Highlights */}
             {project.aiComponent && (
-              <div className="p-5 rounded-2xl bg-[#18011F]/50 border border-[#7621B0]/40">
-                <div className="text-xs font-mono uppercase tracking-wider text-[#B600A8] mb-2 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#B600A8]" />
+              <div className="p-5 rounded-2xl bg-[#052e16]/30 border border-[#00FF66]/30">
+                <div className="text-xs font-mono uppercase tracking-wider text-[#00FF66] mb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#00FF66]" />
                   AI & Model Layer Architecture
                 </div>
                 <p className="text-xs sm:text-sm text-[#D7E2EA] font-light leading-relaxed">
@@ -112,8 +112,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
             {/* Metrics */}
             {project.metrics && (
-              <div className="p-4 rounded-2xl bg-[#090A0D] border border-[#00F0FF]/30 flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-[#00F0FF] shrink-0" />
+              <div className="p-4 rounded-2xl bg-[#090A0D] border border-[#00FF66]/30 flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-[#00FF66] shrink-0" />
                 <span className="text-xs sm:text-sm text-[#D7E2EA] font-mono">
                   {project.metrics}
                 </span>

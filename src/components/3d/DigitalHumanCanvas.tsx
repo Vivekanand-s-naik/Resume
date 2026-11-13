@@ -91,9 +91,9 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     rimLight.position.set(1.6, 2.2, -2.4);
     scene.add(rimLight);
 
-    const cyanRim = new THREE.DirectionalLight(0x00F0FF, 0.55);
-    cyanRim.position.set(-1.6, 2.6, -2.0);
-    scene.add(cyanRim);
+    const emeraldRim = new THREE.DirectionalLight(0x10B981, 0.55);
+    emeraldRim.position.set(-1.6, 2.6, -2.0);
+    scene.add(emeraldRim);
 
     // Holographic Ground Reticle
     const reticleGroup = new THREE.Group();
@@ -342,8 +342,8 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
             m.wireframe = false;
             m.transparent = true;
             m.opacity = 0.85;
-            m.color.set('#00F0FF');
-            m.emissive.set('#00F0FF');
+            m.color.set('#00FF66');
+            m.emissive.set('#10B981');
             m.emissiveIntensity = 0.38;
           } else {
             m.wireframe = false;

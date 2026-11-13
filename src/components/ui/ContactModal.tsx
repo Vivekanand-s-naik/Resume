@@ -22,7 +22,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
       particleCount: 60,
       spread: 60,
       origin: { y: 0.6 },
-      colors: ['#7621B0', '#B600A8', '#00F0FF', '#FFFFFF'],
+      colors: ['#00FF66', '#10B981', '#FFFFFF', '#059669'],
     });
     setTimeout(() => setCopied(false), 3000);
   };
@@ -38,7 +38,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         particleCount: 120,
         spread: 80,
         origin: { y: 0.5 },
-        colors: ['#7621B0', '#B600A8', '#00F0FF', '#39FF14'],
+        colors: ['#00FF66', '#10B981', '#FFFFFF', '#059669'],
       });
     }, 900);
   };
@@ -65,13 +65,13 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
             className="relative w-full max-w-2xl bg-[#12141A] border-2 border-[#D7E2EA]/30 rounded-[32px] sm:rounded-[40px] p-6 sm:p-10 shadow-2xl overflow-hidden z-10"
           >
             {/* Ambient Corner Glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#7621B0]/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#00F0FF]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00FF66]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#10B981]/10 rounded-full blur-3xl pointer-events-none" />
 
             {/* Header */}
             <div className="flex items-center justify-between pb-6 border-b border-[#D7E2EA]/10">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-[#39FF14] animate-pulse" />
+                <div className="w-3 h-3 rounded-full bg-[#00FF66] animate-pulse shadow-[0_0_8px_#00FF66]" />
                 <span className="text-xs uppercase tracking-widest text-[#8E9AA4] font-mono">
                   DIRECT TRANSMISSION CHANNEL
                 </span>
@@ -87,7 +87,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
             {isSubmitted ? (
               <div className="py-12 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-[#7621B0]/30 border border-[#7621B0] flex items-center justify-center mx-auto text-[#00F0FF]">
+                <div className="w-16 h-16 rounded-full bg-[#00FF66]/20 border border-[#00FF66] flex items-center justify-center mx-auto text-[#00FF66]">
                   <Sparkles className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
@@ -114,7 +114,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                 {/* Direct Email Quick Copy Pill */}
                 <div className="p-4 rounded-2xl bg-[#0C0D11] border border-[#262A30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <Terminal className="w-5 h-5 text-[#00F0FF] shrink-0" />
+                    <Terminal className="w-5 h-5 text-[#00FF66] shrink-0" />
                     <div>
                       <div className="text-xs text-[#8E9AA4] uppercase tracking-wider font-mono">
                         Direct Inbox
@@ -130,8 +130,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   >
                     {copied ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-[#39FF14]" />
-                        <span className="text-[#39FF14]">Copied!</span>
+                        <Check className="w-3.5 h-3.5 text-[#00FF66]" />
+                        <span className="text-[#00FF66]">Copied!</span>
                       </>
                     ) : (
                       <>
@@ -155,7 +155,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Ada Lovelace"
-                        className="w-full px-4 py-3 rounded-xl bg-[#0C0D11] border border-[#262A30] focus:border-[#7621B0] focus:ring-1 focus:ring-[#7621B0] text-white placeholder-[#5A646E] text-sm outline-none transition-all"
+                        className="w-full px-4 py-3 rounded-xl bg-[#0C0D11] border border-[#262A30] focus:border-[#00FF66] focus:ring-1 focus:ring-[#00FF66] text-white placeholder-[#5A646E] text-sm outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -168,7 +168,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="ada@domain.com"
-                        className="w-full px-4 py-3 rounded-xl bg-[#0C0D11] border border-[#262A30] focus:border-[#7621B0] focus:ring-1 focus:ring-[#7621B0] text-white placeholder-[#5A646E] text-sm outline-none transition-all"
+                        className="w-full px-4 py-3 rounded-xl bg-[#0C0D11] border border-[#262A30] focus:border-[#00FF66] focus:ring-1 focus:ring-[#00FF66] text-white placeholder-[#5A646E] text-sm outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -180,7 +180,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                     <select
                       value={formData.topic}
                       onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-[#0C0D11] border border-[#262A30] focus:border-[#7621B0] focus:ring-1 focus:ring-[#7621B0] text-white text-sm outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-xl bg-[#0C0D11] border border-[#262A30] focus:border-[#00FF66] focus:ring-1 focus:ring-[#00FF66] text-white text-sm outline-none transition-all"
                     >
                       <option value="AI Systems Architecture">AI Systems Architecture & RAG</option>
                       <option value="Full-Stack Product Engineering">Full-Stack Product Engineering</option>
@@ -200,14 +200,14 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Describe the system, project scope, or technical challenge..."
-                      className="w-full px-4 py-3 rounded-xl bg-[#0C0D11] border border-[#262A30] focus:border-[#7621B0] focus:ring-1 focus:ring-[#7621B0] text-white placeholder-[#5A646E] text-sm outline-none transition-all resize-none"
+                      className="w-full px-4 py-3 rounded-xl bg-[#0C0D11] border border-[#262A30] focus:border-[#00FF66] focus:ring-1 focus:ring-[#00FF66] text-white placeholder-[#5A646E] text-sm outline-none transition-all resize-none"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={isSending}
-                    className="w-full py-4 rounded-full bg-gradient-to-r from-[#7621B0] via-[#B600A8] to-[#BE4C00] text-white font-medium uppercase tracking-widest text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                    className="w-full py-4 rounded-full bg-[#00FF66] hover:bg-[#10B981] text-black font-bold uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,255,102,0.35)] cursor-pointer"
                   >
                     {isSending ? (
                       <span>TRANSMITTING...</span>

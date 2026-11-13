@@ -41,7 +41,7 @@ export const Footer: React.FC = () => {
 
         {/* Center: Live Local Clock & Systems */}
         <div className="flex items-center gap-3">
-          <span className="w-2 h-2 rounded-full bg-[#39FF14] animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-[#00FF66] animate-pulse shadow-[0_0_8px_#00FF66]" />
           <span className="text-white">{time || '00:00:00 UTC'}</span>
           <span className="text-[#5A646E] hidden sm:inline">&bull; LOW LATENCY CORE</span>
         </div>
