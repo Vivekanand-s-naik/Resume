@@ -6,6 +6,7 @@ import {
   CharacterRenderMode,
   CameraPreset,
   GesturePose,
+  getNextGestureInCycle,
 } from '../3d/DigitalHumanCanvas';
 import {
   ArrowDown,
@@ -50,6 +51,14 @@ const SIMULATION_STEPS = [
   { time: '[00:00.095]', text: 'ORCHESTRATION: Evaluating Multi-Agent feedback loop consensus' },
   { time: '[00:00.142]', text: 'METRICS: P99 latency measured at 11.4ms // zero frame drops' },
   { time: '[00:00.180]', text: 'STATUS: WORKFLOW_CONVERGED [SUCCESS]' },
+];
+
+const DAG_GRAPH_NODES = [
+  { id: 'init', label: 'STATE_LOAD', meta: 'POSTGRES' },
+  { id: 'dispatch', label: 'DISPATCH', meta: '1,024 OPS' },
+  { id: 'loop', label: 'CONSENSUS', meta: 'LANGGRAPH' },
+  { id: 'telemetry', label: 'TELEMETRY', meta: 'P99 < 16MS' },
+  { id: 'converged', label: 'CONVERGED', meta: 'EXIT 0' },
 ];
 
 export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
@@ -108,11 +117,10 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
     }, 600);
   };
 
-  // Cycle gestures manually
+  // Cycle gestures manually along the non-repeating cycle
   const handleCycleGesture = () => {
-    const list: GesturePose[] = ['idle', 'crossedArms', 'thoughtful', 'explaining', 'casualHip'];
-    const nextIdx = (list.indexOf(currentGesture) + 1) % list.length;
-    setCurrentGesture(list[nextIdx]);
+    const nextPose = getNextGestureInCycle(currentGesture);
+    setCurrentGesture(nextPose);
   };
 
   // Select Spec Tab
@@ -258,6 +266,58 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
                 </button>
               </div>
 
+              {/* Visual Node-Link DAG Topological Pipeline */}
+              <div className="py-1 overflow-x-auto no-scrollbar">
+                <div className="flex items-center min-w-[500px] justify-between gap-1.5">
+                  {DAG_GRAPH_NODES.map((node, idx) => {
+                    const isCompleted = simStep > idx;
+                    const isActive = isSimulating && simStep === idx;
+                    return (
+                      <React.Fragment key={node.id}>
+                        <div
+                          className={`flex-1 p-2 border transition-all duration-300 font-mono ${
+                            isCompleted
+                              ? 'border-[#00FF66] bg-[#00FF66]/10 text-white shadow-[0_0_10px_rgba(0,255,102,0.15)]'
+                              : isActive
+                              ? 'border-[#00FF66] bg-black text-[#00FF66] shadow-[0_0_14px_rgba(0,255,102,0.35)]'
+                              : 'border-white/10 bg-white/[0.02] text-neutral-500'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between text-[9px] mb-0.5">
+                            <span className="opacity-60">0{idx + 1}</span>
+                            <span
+                              className={`w-1.5 h-1.5 rounded-none ${
+                                isCompleted
+                                  ? 'bg-[#00FF66]'
+                                  : isActive
+                                  ? 'bg-[#00FF66] animate-pulse'
+                                  : 'bg-neutral-700'
+                              }`}
+                            />
+                          </div>
+                          <div className="text-[10px] font-bold tracking-wider truncate">
+                            {node.label}
+                          </div>
+                          <div className="text-[9px] text-neutral-400 opacity-75 truncate">
+                            {node.meta}
+                          </div>
+                        </div>
+
+                        {idx < DAG_GRAPH_NODES.length - 1 && (
+                          <div
+                            className={`text-[10px] font-mono px-0.5 transition-colors duration-300 ${
+                              simStep > idx ? 'text-[#00FF66]' : 'text-neutral-700'
+                            }`}
+                          >
+                            →
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Console Log Feed or Standby State */}
               <div className="min-h-[56px] text-[11px] space-y-1">
                 {simLogs.length === 0 ? (
@@ -341,7 +401,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
             <div className="flex items-center gap-2">
               {/* Camera Presets */}
               <div className="flex items-center border border-white/10 bg-black/40">
-                {(['front', 'angled', 'core'] as const).map((cam) => (
+                {(['front', 'angled', 'close'] as const).map((cam) => (
                   <button
                     key={cam}
                     type="button"
@@ -402,7 +462,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
             />
 
             {/* Realtime Telemetry HUD Overlay */}
-            <div className="absolute top-4 left-4 z-10 font-mono text-[10px] space-y-1.5 bg-black/80 backdrop-blur-sm border border-white/10 p-3 text-neutral-400 select-none pointer-events-none max-w-[220px]">
+            <div className="absolute top-4 left-4 z-10 font-mono text-[10px] space-y-1.5 bg-black/85 backdrop-blur-sm border border-white/10 p-3 text-neutral-400 select-none pointer-events-none max-w-[230px]">
               <div className="text-white font-medium tracking-wide flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-[#00FF66]" />
                 <span>// AGENTIC NODE HUD</span>
@@ -411,12 +471,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
                 STATUS: <span className="text-[#00FF66]">ONLINE &bull; SYNCHRONIZED</span>
               </div>
               <div>
-                HUMAN GESTURE: <span className="text-white uppercase font-bold">{currentGesture}</span>
+                ACTIVE POSE: <span className="text-white uppercase font-bold">{currentGesture}</span>
               </div>
               <div>
-                NEURAL CORE: <span className={`${isSimulating ? 'text-[#00FF66] animate-pulse' : 'text-neutral-300'}`}>
-                  {isSimulating ? 'ACCELERATED_ORBIT' : 'ACTIVE_GYROSCOPE'}
-                </span>
+                SKELETAL MOCAP: <span className="text-neutral-300 font-medium">53 BONES ACTIVE</span>
+              </div>
+              <div>
+                FPS: <span className="text-[#00FF66]">60</span> &bull; LATENCY: <span className="text-neutral-300">&lt;16MS</span>
               </div>
             </div>
 

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import type { DigitalHumanRig, CharacterQuality, GesturePose } from './rig';
 import { resolveBoneMap } from './rig';
 import { createProceduralEngineer } from './createProceduralEngineer';
@@ -13,7 +14,25 @@ export const ANIMATION_URLS: Record<GesturePose, string> = {
   thoughtful: '/models/animations/thoughtful.glb',
   explaining: '/models/animations/explaining.glb',
   casualHip: '/models/animations/casual.glb',
+  waving: '/models/animations/waving.glb',
+  dance: '/models/animations/dance.glb',
 };
+
+const USER_FBX_PATHS: Partial<Record<GesturePose, string>> = {
+  dance: '/models/animations/mixamo/hiphop.fbx',
+  waving: '/models/animations/mixamo/waving.fbx',
+};
+
+/**
+ * Normalizes bone names in Mixamo animation clips to match Ready Player Me armature
+ * (Strips 'mixamorig:', 'mixamorig', or 'Armature|mixamorig:' prefixes)
+ */
+export function normalizeMixamoTracks(clip: THREE.AnimationClip): THREE.AnimationClip {
+  clip.tracks.forEach((track) => {
+    track.name = track.name.replace(/(mixamorig[:_]?|Armature\|mixamorig[:_]?)/gi, '');
+  });
+  return clip;
+}
 
 function collectDisposables(root: THREE.Object3D) {
   const geos: THREE.BufferGeometry[] = [];
@@ -84,15 +103,22 @@ function bindGltf(scene: THREE.Group, clipMap: Map<GesturePose, THREE.AnimationC
     activePose = 'idle';
   }
 
-  const playGesture = (pose: GesturePose, fadeDuration: number = 0.9) => {
+  const playGesture = (pose: GesturePose, fadeDuration: number = 1.2) => {
     if (!mixer) return;
     const targetAction = actions.get(pose);
     if (!targetAction || targetAction === currentAction) return;
 
+    targetAction.reset();
+    targetAction.enabled = true;
+    targetAction.setEffectiveTimeScale(1);
+    targetAction.setEffectiveWeight(1);
+
     if (currentAction) {
-      currentAction.fadeOut(fadeDuration);
+      currentAction.crossFadeTo(targetAction, fadeDuration, true);
+    } else {
+      targetAction.fadeIn(fadeDuration);
     }
-    targetAction.reset().fadeIn(fadeDuration).play();
+    targetAction.play();
     currentAction = targetAction;
     activePose = pose;
   };
@@ -167,60 +193,13 @@ function bindGltf(scene: THREE.Group, clipMap: Map<GesturePose, THREE.AnimationC
   characterGroup.add(scene);
   scene.position.set(-center.x, -box.min.y, -center.z);
 
-  // Creative AI Core: Orbiting high-tech neural companion with dual gyroscopic rings
-  const aiCore = new THREE.Group();
-  aiCore.name = 'aiCore';
-  aiCore.position.set(0.38, 1.42, 0.15);
-
-  // 1. Glowing Crystalline Core
-  const innerGeo = new THREE.OctahedronGeometry(0.042, 0);
-  const innerMat = new THREE.MeshStandardMaterial({
-    color: '#00FF66',
-    emissive: '#00FF66',
-    emissiveIntensity: 0.9,
-    roughness: 0.15,
-    metalness: 0.3,
-  });
-  const inner = new THREE.Mesh(innerGeo, innerMat);
-
-  // 2. Translucent Wireframe Energy Shell
-  const shellGeo = new THREE.IcosahedronGeometry(0.068, 0);
-  const shellMat = new THREE.MeshBasicMaterial({
-    color: '#00F0FF',
-    wireframe: true,
-    transparent: true,
-    opacity: 0.5,
-  });
-  const shell = new THREE.Mesh(shellGeo, shellMat);
-
-  // 3. Primary Orbital Ring (Terminal Green)
-  const ring1Geo = new THREE.TorusGeometry(0.092, 0.003, 8, 36);
-  const ring1Mat = new THREE.MeshBasicMaterial({
-    color: '#00FF66',
-    transparent: true,
-    opacity: 0.65,
-  });
-  const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
-  ring1.rotation.x = Math.PI / 4;
-
-  // 4. Secondary Counter-Orbital Ring (Electric Cyan)
-  const ring2Geo = new THREE.TorusGeometry(0.112, 0.0025, 8, 36);
-  const ring2Mat = new THREE.MeshBasicMaterial({
-    color: '#00F0FF',
-    transparent: true,
-    opacity: 0.5,
-  });
-  const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
-  ring2.rotation.y = Math.PI / 3;
-
-  aiCore.add(inner, shell, ring1, ring2);
-  aiCore.visible = true;
-
-  // Root container holding the centered character and companion
+  // Root container holding the centered character
   const characterRoot = new THREE.Group();
   characterRoot.name = 'digitalHumanRoot';
   characterRoot.add(characterGroup);
-  characterRoot.add(aiCore);
+
+  const aiCore = new THREE.Group();
+  aiCore.name = 'aiCore';
 
   const { geos, mats, textures } = collectDisposables(scene);
 
@@ -273,14 +252,6 @@ function bindGltf(scene: THREE.Group, clipMap: Map<GesturePose, THREE.AnimationC
       geos.forEach((g) => g.dispose());
       mats.forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
-      innerGeo.dispose();
-      shellGeo.dispose();
-      ring1Geo.dispose();
-      ring2Geo.dispose();
-      innerMat.dispose();
-      shellMat.dispose();
-      ring1Mat.dispose();
-      ring2Mat.dispose();
     },
   };
 }
@@ -291,16 +262,28 @@ export async function loadDigitalHuman(quality: CharacterQuality): Promise<Digit
   }
 
   try {
-    const loader = new GLTFLoader();
+    const gltfLoader = new GLTFLoader();
+    const fbxLoader = new FBXLoader();
 
     // Parallel load of avatar and Mixamo motion capture animation clips
-    const [modelGltf, idleGltf, crossedGltf, thoughtfulGltf, explainingGltf, casualGltf] = await Promise.all([
-      loader.loadAsync(DIGITAL_HUMAN_MODEL_URL),
-      loader.loadAsync(ANIMATION_URLS.idle).catch(() => null),
-      loader.loadAsync(ANIMATION_URLS.crossedArms).catch(() => null),
-      loader.loadAsync(ANIMATION_URLS.thoughtful).catch(() => null),
-      loader.loadAsync(ANIMATION_URLS.explaining).catch(() => null),
-      loader.loadAsync(ANIMATION_URLS.casualHip).catch(() => null),
+    const [
+      modelGltf,
+      idleGltf,
+      crossedGltf,
+      thoughtfulGltf,
+      explainingGltf,
+      casualGltf,
+      wavingGltf,
+      danceGltf,
+    ] = await Promise.all([
+      gltfLoader.loadAsync(DIGITAL_HUMAN_MODEL_URL),
+      gltfLoader.loadAsync(ANIMATION_URLS.idle).catch(() => null),
+      gltfLoader.loadAsync(ANIMATION_URLS.crossedArms).catch(() => null),
+      gltfLoader.loadAsync(ANIMATION_URLS.thoughtful).catch(() => null),
+      gltfLoader.loadAsync(ANIMATION_URLS.explaining).catch(() => null),
+      gltfLoader.loadAsync(ANIMATION_URLS.casualHip).catch(() => null),
+      gltfLoader.loadAsync(ANIMATION_URLS.waving).catch(() => null),
+      gltfLoader.loadAsync(ANIMATION_URLS.dance).catch(() => null),
     ]);
 
     const clipMap = new Map<GesturePose, THREE.AnimationClip>();
@@ -309,6 +292,24 @@ export async function loadDigitalHuman(quality: CharacterQuality): Promise<Digit
     if (thoughtfulGltf?.animations[0]) clipMap.set('thoughtful', thoughtfulGltf.animations[0]);
     if (explainingGltf?.animations[0]) clipMap.set('explaining', explainingGltf.animations[0]);
     if (casualGltf?.animations[0]) clipMap.set('casualHip', casualGltf.animations[0]);
+    if (wavingGltf?.animations[0]) clipMap.set('waving', wavingGltf.animations[0]);
+    if (danceGltf?.animations[0]) clipMap.set('dance', danceGltf.animations[0]);
+
+    // Check for user-provided FBX files in /models/animations/mixamo/
+    await Promise.all(
+      Object.entries(USER_FBX_PATHS).map(async ([poseKey, fbxUrl]) => {
+        try {
+          const fbxObj = await fbxLoader.loadAsync(fbxUrl);
+          if (fbxObj.animations && fbxObj.animations.length > 0) {
+            const normalizedClip = normalizeMixamoTracks(fbxObj.animations[0]);
+            clipMap.set(poseKey as GesturePose, normalizedClip);
+            console.log(`Loaded custom Mixamo FBX for [${poseKey}]:`, fbxUrl);
+          }
+        } catch {
+          // FBX not present; graceful fallback to default GLB clip
+        }
+      })
+    );
 
     return bindGltf(modelGltf.scene, clipMap);
   } catch (err) {

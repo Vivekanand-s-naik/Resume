@@ -9,13 +9,13 @@ export const SystemSection: React.FC = () => {
   const getLayerIcon = (step: string) => {
     switch (step) {
       case '01':
-        return <Cpu className="w-5 h-5 text-[#7621B0]" />;
+        return <Cpu className="w-4 h-4 text-[#00FF66]" />;
       case '02':
-        return <Database className="w-5 h-5 text-[#00F0FF]" />;
+        return <Database className="w-4 h-4 text-white" />;
       case '03':
-        return <Network className="w-5 h-5 text-[#B600A8]" />;
+        return <Network className="w-4 h-4 text-[#F59E0B]" />;
       default:
-        return <Layout className="w-5 h-5 text-[#39FF14]" />;
+        return <Layout className="w-4 h-4 text-neutral-300" />;
     }
   };
 
@@ -51,17 +51,17 @@ export const SystemSection: React.FC = () => {
                 <button
                   key={layer.step}
                   onClick={() => setActiveLayer(index)}
-                  className={`w-full text-left p-6 sm:p-8 rounded-[28px] sm:rounded-[36px] transition-all duration-300 border flex flex-col justify-between group cursor-pointer ${
+                  className={`w-full text-left p-6 sm:p-7 transition-all duration-200 border flex flex-col justify-between group cursor-pointer ${
                     isActive
-                      ? 'bg-[#151820] border-[#D7E2EA] shadow-[0_0_30px_rgba(118,33,176,0.15)]'
-                      : 'bg-[#0E1015] border-[#262A30]/80 hover:border-[#8E9AA4]/40 hover:bg-[#12141A]'
+                      ? 'bg-[#151515] border-white/40 border-l-2 border-l-[#00FF66]'
+                      : 'bg-[#0E0E0E] border-white/10 hover:border-white/25 hover:bg-[#121212]'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-4">
                       <span
                         className={`text-2xl sm:text-3xl font-black font-mono transition-colors ${
-                          isActive ? 'text-[#00F0FF]' : 'text-[#5A646E]'
+                          isActive ? 'text-[#00FF66]' : 'text-neutral-600'
                         }`}
                       >
                         {layer.step}
@@ -70,7 +70,7 @@ export const SystemSection: React.FC = () => {
                         <h3 className="text-xl sm:text-2xl font-bold uppercase tracking-wide text-white">
                           {layer.title}
                         </h3>
-                        <p className="text-xs font-mono text-[#8E9AA4] tracking-wider">
+                        <p className="text-xs font-mono text-neutral-400 tracking-wider">
                           {layer.subtitle}
                         </p>
                       </div>
@@ -78,8 +78,8 @@ export const SystemSection: React.FC = () => {
                     <div className="flex items-center gap-2">
                       {getLayerIcon(layer.step)}
                       <ChevronRight
-                        className={`w-4 h-4 text-[#8E9AA4] transition-transform duration-300 ${
-                          isActive ? 'rotate-90 text-[#00F0FF]' : 'group-hover:translate-x-1'
+                        className={`w-4 h-4 text-neutral-400 transition-transform duration-200 ${
+                          isActive ? 'rotate-90 text-[#00FF66]' : 'group-hover:translate-x-1'
                         }`}
                       />
                     </div>
@@ -89,10 +89,10 @@ export const SystemSection: React.FC = () => {
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
-                      transition={{ duration: 0.3 }}
-                      className="mt-4 pt-4 border-t border-[#262A30]"
+                      transition={{ duration: 0.25 }}
+                      className="mt-4 pt-4 border-t border-white/10"
                     >
-                      <p className="text-xs sm:text-sm text-[#D7E2EA] font-light leading-relaxed">
+                      <p className="text-xs sm:text-sm text-neutral-300 font-light leading-relaxed">
                         {layer.description}
                       </p>
                     </motion.div>
@@ -103,23 +103,19 @@ export const SystemSection: React.FC = () => {
           </div>
 
           {/* Right Column: Dynamic Deep-Dive Console & Technical Code Preview */}
-          <div className="lg:col-span-7 bg-[#12141A] border-2 border-[#262A30] rounded-[32px] sm:rounded-[44px] p-6 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[500px]">
-            {/* Ambient Shader Glow */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-[#7621B0]/15 rounded-full blur-3xl pointer-events-none" />
-
+          <div className="lg:col-span-7 bg-[#0E0E0E] border border-white/15 p-6 sm:p-10 relative overflow-hidden flex flex-col justify-between min-h-[500px]">
             <div>
               {/* Console Header */}
-              <div className="flex items-center justify-between pb-6 border-b border-[#262A30]">
+              <div className="flex items-center justify-between pb-6 border-b border-white/10">
                 <div className="flex items-center gap-3">
-                  <Terminal className="w-5 h-5 text-[#00F0FF]" />
-                  <span className="font-mono text-xs uppercase tracking-widest text-[#8E9AA4]">
+                  <Terminal className="w-5 h-5 text-[#00FF66]" />
+                  <span className="font-mono text-xs uppercase tracking-widest text-neutral-400">
                     LAYER {SYSTEM_LAYERS[activeLayer].step} SPECIFICATION // {SYSTEM_LAYERS[activeLayer].title}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]" />
+                <div className="flex items-center gap-2 font-mono text-[10px] text-neutral-500 uppercase">
+                  <span className="w-2 h-2 bg-[#00FF66]" />
+                  <span>ONLINE</span>
                 </div>
               </div>
 
@@ -128,7 +124,7 @@ export const SystemSection: React.FC = () => {
                 <h4 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-white">
                   {SYSTEM_LAYERS[activeLayer].subtitle}
                 </h4>
-                <p className="text-sm sm:text-base text-[#D7E2EA] font-light leading-relaxed">
+                <p className="text-sm sm:text-base text-neutral-300 font-light leading-relaxed">
                   {SYSTEM_LAYERS[activeLayer].description}
                 </p>
 
@@ -136,10 +132,10 @@ export const SystemSection: React.FC = () => {
                   {SYSTEM_LAYERS[activeLayer].details.map((detail, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start gap-2.5 p-3 rounded-xl bg-[#0C0D11] border border-[#262A30]/60"
+                      className="flex items-start gap-2.5 p-3 bg-black/60 border border-white/10"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-[#39FF14] shrink-0 mt-0.5" />
-                      <span className="text-xs text-[#D7E2EA] font-mono leading-tight">
+                      <CheckCircle2 className="w-4 h-4 text-[#00FF66] shrink-0 mt-0.5" />
+                      <span className="text-xs text-neutral-300 font-mono leading-tight">
                         {detail}
                       </span>
                     </div>
@@ -149,12 +145,12 @@ export const SystemSection: React.FC = () => {
             </div>
 
             {/* Architecture Code Snippet */}
-            <div className="mt-8 pt-6 border-t border-[#262A30]">
-              <div className="text-[11px] font-mono text-[#8E9AA4] mb-2 uppercase tracking-wider flex items-center justify-between">
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <div className="text-[11px] font-mono text-neutral-400 mb-2 uppercase tracking-wider flex items-center justify-between">
                 <span>// RUNTIME SIGNATURE</span>
-                <span className="text-[#39FF14]">SYNCHRONIZED</span>
+                <span className="text-[#00FF66]">SYNCHRONIZED</span>
               </div>
-              <pre className="p-4 rounded-xl bg-[#090A0D] border border-[#262A30] overflow-x-auto text-xs font-mono text-[#00F0FF] leading-relaxed">
+              <pre className="p-4 bg-black border border-white/10 overflow-x-auto text-xs font-mono text-neutral-200 leading-relaxed">
                 <code>{SYSTEM_LAYERS[activeLayer].code}</code>
               </pre>
             </div>

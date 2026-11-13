@@ -1,7 +1,30 @@
 import type { AnimationMixer, AnimationAction, Group, Object3D, Mesh, Euler } from 'three';
 
 export type CharacterQuality = 'high' | 'low';
-export type GesturePose = 'idle' | 'crossedArms' | 'thoughtful' | 'explaining' | 'casualHip';
+export type GesturePose =
+  | 'idle'
+  | 'crossedArms'
+  | 'thoughtful'
+  | 'explaining'
+  | 'casualHip'
+  | 'waving'
+  | 'dance';
+
+export const GESTURE_CYCLE: readonly GesturePose[] = [
+  'idle',
+  'waving',
+  'crossedArms',
+  'explaining',
+  'thoughtful',
+  'casualHip',
+  'dance',
+] as const;
+
+export const getNextGestureInCycle = (current: GesturePose): GesturePose => {
+  const idx = GESTURE_CYCLE.indexOf(current);
+  if (idx === -1) return GESTURE_CYCLE[0];
+  return GESTURE_CYCLE[(idx + 1) % GESTURE_CYCLE.length];
+};
 
 export interface FingerBones {
   thumb: Object3D[];

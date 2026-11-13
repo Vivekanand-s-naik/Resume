@@ -3,10 +3,12 @@ import * as THREE from 'three';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { loadDigitalHuman } from './digitalHuman/loadCharacterModel';
 import type { DigitalHumanRig, GesturePose } from './digitalHuman/rig';
+import { getNextGestureInCycle } from './digitalHuman/rig';
 
 export type { GesturePose } from './digitalHuman/rig';
+export { GESTURE_CYCLE, getNextGestureInCycle } from './digitalHuman/rig';
 export type CharacterRenderMode = 'agent' | 'holo' | 'wireframe';
-export type CameraPreset = 'front' | 'angled' | 'core';
+export type CameraPreset = 'front' | 'angled' | 'close';
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -40,6 +42,9 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
   const onPoseChangeRef = useRef(onPoseChange);
   onPoseChangeRef.current = onPoseChange;
 
+  const isSimulatingRef = useRef(isSimulating);
+  isSimulatingRef.current = isSimulating;
+
   const pulseTriggerRef = useRef<() => void>(() => {});
   const applyRenderModeRef = useRef<(m: CharacterRenderMode) => void>(() => {});
   const switchGestureRef = useRef<(pose: GesturePose, isForced?: boolean) => void>(() => {});
@@ -71,28 +76,24 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     container.appendChild(renderer.domElement);
 
     // Studio Key & Rim Lighting
-    const hemi = new THREE.HemisphereLight(0xc8d6e0, 0x0c0c0c, 0.65);
+    const hemi = new THREE.HemisphereLight(0xc8d6e0, 0x0c0c0c, 0.7);
     scene.add(hemi);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.45);
     keyLight.position.set(-1.8, 2.8, 2.5);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x4a5568, 0.55);
+    const fillLight = new THREE.DirectionalLight(0x4a5568, 0.6);
     fillLight.position.set(2.2, 1.0, 1.8);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0x00FF66, 0.9);
+    const rimLight = new THREE.DirectionalLight(0x00FF66, 0.85);
     rimLight.position.set(1.6, 2.2, -2.4);
     scene.add(rimLight);
 
-    const cyanRim = new THREE.DirectionalLight(0x00F0FF, 0.5);
+    const cyanRim = new THREE.DirectionalLight(0x00F0FF, 0.55);
     cyanRim.position.set(-1.6, 2.6, -2.0);
     scene.add(cyanRim);
-
-    // AI Core Dynamic Point Light
-    const coreLight = new THREE.PointLight(0x00FF66, 0.9, 2.8);
-    scene.add(coreLight);
 
     // Holographic Ground Reticle
     const reticleGroup = new THREE.Group();
@@ -192,7 +193,6 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     }
 
     // Camera Configuration & Focusing
-    const coreWorld = new THREE.Vector3();
     const lookTarget = new THREE.Vector3(0, 1.34, 0);
 
     const rest = {
@@ -200,22 +200,39 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       camX: 0,
       camY: 1.38,
       camZ: 2.35,
-      coreX: 0.38,
-      coreY: 1.42,
     };
 
     const mouse = { x: 0, y: 0 };
-    const eyeRot = { x: 0, y: 0 };
     const headRot = { x: 0, y: 0 };
-    const corePos = { x: 0, y: 0 };
 
-    // ==========================================
-    // NATURAL HUMAN CADENCE STATE MACHINE
-    // ==========================================
+    // ==============================================================
+    // CONTINUOUS ORDERED NON-REPEATING ANIMATION CYCLE
+    // ==============================================================
     let currentPose: GesturePose = 'idle';
     currentGestureRef.current = 'idle';
-    // Initial still idle duration: 10 to 14 seconds like a real person
-    let poseTimer = 10.0 + Math.random() * 4.0;
+    // Initial still idle duration before automatic cycle starts: 4.5 seconds
+    let poseTimer = 4.5;
+
+    const getPoseHoldDuration = (pose: GesturePose): number => {
+      switch (pose) {
+        case 'dance':
+          return 6.5; // Complete dance phrase (~6.38s)
+        case 'waving':
+          return 4.5; // Welcoming greeting phrase (~3.21s)
+        case 'idle':
+          return 4.5; // Calm breathing rest
+        case 'explaining':
+          return 5.5; // Technical presentation
+        case 'thoughtful':
+          return 5.0; // Analytic consideration
+        case 'crossedArms':
+          return 5.0; // Confident stance
+        case 'casualHip':
+          return 5.0; // Relaxed posture
+        default:
+          return 5.0;
+      }
+    };
 
     const performGestureTransition = (target: GesturePose, isForced: boolean) => {
       if (target === currentPose && !isForced) return;
@@ -223,22 +240,11 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       currentGestureRef.current = target;
 
       if (rigRef.current) {
-        rigRef.current.playGesture(target, 0.95);
+        rigRef.current.playGesture(target, 1.2);
       }
 
-      // Timing cadence:
-      // Still normal human idle rests for 10-14 seconds
-      // Crossed arms holds confidently for 10-13 seconds
-      // Gestures hold for 8-11 seconds
-      if (target === 'idle') {
-        poseTimer = 10.0 + Math.random() * 4.0;
-      } else if (target === 'crossedArms') {
-        poseTimer = 10.0 + Math.random() * 3.0;
-      } else {
-        poseTimer = 8.0 + Math.random() * 3.0;
-      }
+      poseTimer = getPoseHoldDuration(target);
 
-      // Only notify parent when naturally cycling to avoid infinite feedback loops
       if (!isForced) {
         onPoseChangeRef.current?.(target);
       }
@@ -249,16 +255,10 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     };
 
     const advanceNaturalCadence = () => {
-      // Natural human rule:
-      // If currently performing a gesture -> ALWAYS return to still normal human (idle)
-      // If currently still/idle -> select a natural organic gesture
-      if (currentPose !== 'idle') {
-        performGestureTransition('idle', false);
-      } else {
-        const actionOptions: GesturePose[] = ['crossedArms', 'thoughtful', 'explaining', 'casualHip'];
-        const next = actionOptions[Math.floor(Math.random() * actionOptions.length)];
-        performGestureTransition(next, false);
-      }
+      // Strictly advance to the NEXT animation in the non-repeating cycle
+      // Never repeats the same animation, never waits for clicks
+      const next = getNextGestureInCycle(currentPose);
+      performGestureTransition(next, false);
     };
 
     const onMouseMove = (e: MouseEvent) => {
@@ -325,7 +325,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       if (!rig) return;
       rig.root.traverse((obj) => {
         const mesh = obj as THREE.Mesh;
-        if (!mesh.isMesh || mesh.name.includes('aiCore') || mesh.parent?.name.includes('aiCore')) return;
+        if (!mesh.isMesh) return;
 
         const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
         materials.forEach((mat) => {
@@ -388,39 +388,54 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
         if (p >= 1.0) pulseProgress = -1;
       }
 
-      reticleGroup.rotation.z = -t * 0.07;
-
-      // Advance Natural Human Cadence Timer
-      poseTimer -= dt;
-      if (poseTimer <= 0) {
-        advanceNaturalCadence();
-      }
+      const reticleSpeed = isSimulatingRef.current ? 0.24 : 0.07;
+      reticleGroup.rotation.z = -t * reticleSpeed;
 
       const rig = rigRef.current;
       if (rig) {
+        // Advance Natural Human Cadence Timer only when character is loaded
+        poseTimer -= dt;
+        if (poseTimer <= 0) {
+          advanceNaturalCadence();
+        }
+
         // Update Mixamo Motion Capture Animation Tracks
         rig.mixer?.update(dt);
 
         // Subtle Mouse Kinematics Layered Additively
         if (!reduced) {
-          const targetHeadY = mouse.x * 0.24;
-          const targetHeadX = -mouse.y * 0.15;
+          const targetHeadY = mouse.x * 0.22;
+          const targetHeadX = -mouse.y * 0.14;
           headRot.y = lerp(headRot.y, targetHeadY, 1 - Math.exp(-dt * 4.5));
           headRot.x = lerp(headRot.x, targetHeadX, 1 - Math.exp(-dt * 4.5));
 
           if (rig.head) {
-            rig.head.rotation.y += headRot.y * 0.32;
-            rig.head.rotation.x += headRot.x * 0.22;
+            const headQuat = new THREE.Quaternion().setFromEuler(
+              new THREE.Euler(headRot.x * 0.22, headRot.y * 0.32, 0, 'YXZ')
+            );
+            rig.head.quaternion.multiply(headQuat);
           }
           if (rig.neck) {
-            rig.neck.rotation.y += headRot.y * 0.14;
+            const neckQuat = new THREE.Quaternion().setFromEuler(
+              new THREE.Euler(headRot.x * 0.1, headRot.y * 0.14, 0, 'YXZ')
+            );
+            rig.neck.quaternion.multiply(neckQuat);
           }
 
-          if (rig.leftEye && rig.rightEye) {
-            eyeRot.y = lerp(eyeRot.y, mouse.x * 0.32, 1 - Math.exp(-dt * 10));
-            eyeRot.x = lerp(eyeRot.x, -mouse.y * 0.2, 1 - Math.exp(-dt * 10));
-            rig.leftEye.rotation.y += eyeRot.y * 0.3;
-            rig.rightEye.rotation.y += eyeRot.y * 0.3;
+          // FIX: Non-accumulating absolute eye gaze tracking
+          // Sets fixed clamped offset relative to rest rotation so eyeballs NEVER continuously spin
+          const leftEyeRest = rig.leftEye ? rig.restRotations.get(rig.leftEye) : null;
+          const rightEyeRest = rig.rightEye ? rig.restRotations.get(rig.rightEye) : null;
+
+          if (rig.leftEye && leftEyeRest) {
+            const lookY = Math.max(-0.1, Math.min(0.1, mouse.x * 0.1));
+            const lookX = Math.max(-0.06, Math.min(0.06, -mouse.y * 0.06));
+            rig.leftEye.rotation.set(leftEyeRest.x + lookX, leftEyeRest.y + lookY, leftEyeRest.z);
+          }
+          if (rig.rightEye && rightEyeRest) {
+            const lookY = Math.max(-0.1, Math.min(0.1, mouse.x * 0.1));
+            const lookX = Math.max(-0.06, Math.min(0.06, -mouse.y * 0.06));
+            rig.rightEye.rotation.set(rightEyeRest.x + lookX, rightEyeRest.y + lookY, rightEyeRest.z);
           }
 
           // Dynamic Natural Blinking
@@ -447,44 +462,6 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
             }
           }
         }
-
-        // AI Core Dynamic Orbit & Reactive Quantum Spin
-        const speedMultiplier = isSimulating ? 3.0 : 1.0;
-        const coreBobY = Math.sin(t * (1.6 * speedMultiplier)) * 0.035;
-        const coreBobX = Math.cos(t * (1.1 * speedMultiplier)) * 0.015;
-        const coreTargetX = reduced ? 0 : mouse.x * 0.04;
-        const coreTargetY = reduced ? 0 : mouse.y * 0.03;
-        corePos.x = lerp(corePos.x, coreTargetX, 1 - Math.exp(-dt * 3.0));
-        corePos.y = lerp(corePos.y, coreTargetY, 1 - Math.exp(-dt * 3.0));
-
-        rig.aiCore.position.x = rest.coreX + corePos.x + coreBobX;
-        rig.aiCore.position.y = rest.coreY + corePos.y + coreBobY;
-
-        const innerMesh = rig.aiCore.children[0];
-        const shellMesh = rig.aiCore.children[1];
-        const ring1 = rig.aiCore.children[2];
-        const ring2 = rig.aiCore.children[3];
-
-        if (innerMesh) {
-          innerMesh.rotation.y = t * 0.6 * speedMultiplier;
-          innerMesh.rotation.x = t * 0.4 * speedMultiplier;
-          const pulse = (isSimulating ? 1.2 : 1.0) + Math.sin(t * (3.2 * speedMultiplier)) * (isSimulating ? 0.25 : 0.12);
-          innerMesh.scale.setScalar(pulse);
-        }
-        if (shellMesh) {
-          shellMesh.rotation.y = -t * 0.45 * speedMultiplier;
-          shellMesh.rotation.z = t * 0.3 * speedMultiplier;
-        }
-        if (ring1) {
-          ring1.rotation.z = t * 0.8 * speedMultiplier;
-        }
-        if (ring2) {
-          ring2.rotation.y = -t * 0.65 * speedMultiplier;
-        }
-
-        rig.aiCore.getWorldPosition(coreWorld);
-        coreLight.position.copy(coreWorld);
-        coreLight.intensity = isSimulating ? 1.8 : 0.9;
       }
 
       // Smooth Camera Positioning with Preset Interpolation
@@ -495,20 +472,20 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       let targetLookX = 0;
 
       if (cameraPreset === 'angled') {
-        targetCamX = 0.45;
+        targetCamX = 0.42;
         targetCamY = rest.camY - 0.02;
         targetCamZ = rest.baseCamZ * 0.92;
-        targetLookX = 0.06;
-      } else if (cameraPreset === 'core') {
-        targetCamX = 0.28;
-        targetCamY = 1.42;
-        targetCamZ = rest.baseCamZ * 0.74;
-        targetLookX = 0.32;
-        targetLookY = 1.40;
+        targetLookX = 0.05;
+      } else if (cameraPreset === 'close') {
+        targetCamX = 0.06;
+        targetCamY = 1.46;
+        targetCamZ = rest.baseCamZ * 0.68;
+        targetLookX = 0.02;
+        targetLookY = 1.44;
       }
 
-      camera.position.x = lerp(camera.position.x, targetCamX + mouse.x * 0.08, 1 - Math.exp(-dt * 2.5));
-      camera.position.y = lerp(camera.position.y, targetCamY + mouse.y * 0.04, 1 - Math.exp(-dt * 2.5));
+      camera.position.x = lerp(camera.position.x, targetCamX + mouse.x * 0.06, 1 - Math.exp(-dt * 2.5));
+      camera.position.y = lerp(camera.position.y, targetCamY + mouse.y * 0.03, 1 - Math.exp(-dt * 2.5));
       camera.position.z = lerp(camera.position.z, targetCamZ, 1 - Math.exp(-dt * 2.5));
 
       lookTarget.x = lerp(lookTarget.x, targetLookX, 1 - Math.exp(-dt * 2.5));
@@ -528,18 +505,16 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
         return;
       }
       rigRef.current = loaded;
-      rest.coreX = loaded.aiCore.position.x;
-      rest.coreY = loaded.aiCore.position.y;
       scene.add(loaded.root);
       layoutCamera(container.clientWidth, container.clientHeight);
       applyRenderMode(mode);
 
       // Start with initial active gesture if requested
-      if (activeGesture && activeGesture !== 'idle') {
-        loaded.playGesture(activeGesture, 0.5);
-        currentPose = activeGesture;
-        currentGestureRef.current = activeGesture;
-      }
+      const initialPose = activeGesture || 'idle';
+      loaded.playGesture(initialPose, 0.5);
+      currentPose = initialPose;
+      currentGestureRef.current = initialPose;
+      poseTimer = getPoseHoldDuration(initialPose);
     });
 
     animate();
@@ -587,11 +562,8 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
   const handleContainerClick = () => {
     pulseTriggerRef.current();
 
-    // User click cycles to next gesture:
-    // idle -> crossedArms -> thoughtful -> explaining -> casualHip -> idle
-    const list: GesturePose[] = ['idle', 'crossedArms', 'thoughtful', 'explaining', 'casualHip'];
-    const currentIdx = list.indexOf(currentGestureRef.current);
-    const nextPose = list[(currentIdx + 1) % list.length];
+    // User click advances immediately to next animation in the non-repeating cycle
+    const nextPose = getNextGestureInCycle(currentGestureRef.current);
 
     switchGestureRef.current(nextPose, true);
     onPoseChange?.(nextPose);
