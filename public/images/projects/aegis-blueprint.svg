@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="800" viewBox="0 0 1000 800" fill="#0C0E12">
+  <rect width="1000" height="800" fill="#0C0E12"/>
+  <rect x="40" y="40" width="920" height="720" rx="8" fill="#12151B" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <rect x="40" y="40" width="920" height="50" fill="#181B22" rx="8"/>
+  <circle cx="75" cy="65" r="5" fill="#FF5F56"/>
+  <circle cx="95" cy="65" r="5" fill="#FFBD2E"/>
+  <circle cx="115" cy="65" r="5" fill="#00FF66"/>
+  <text x="145" y="70" fill="#D7E2EA" font-family="monospace" font-size="14">aegis-dashboard // live-stream-telemetry.rs</text>
+  <g transform="translate(100, 160)">
+    <circle cx="400" cy="220" r="140" fill="none" stroke="#00FF66" stroke-width="1.5"/>
+    <circle cx="400" cy="220" r="90" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="8 4"/>
+    <circle cx="400" cy="220" r="40" fill="rgba(0,255,102,0.12)" stroke="#00FF66" stroke-width="2"/>
+    <line x1="120" y1="220" x2="320" y2="220" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+    <line x1="480" y1="220" x2="680" y2="220" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+    <text x="400" y="225" fill="#FFFFFF" font-family="monospace" font-size="16" font-weight="bold" text-anchor="middle">218ms RTT</text>
+    <rect x="60" y="430" width="680" height="60" rx="4" fill="#0C0E12" stroke="#00FF66" stroke-width="1"/>
+    <text x="90" y="466" fill="#00FF66" font-family="monospace" font-size="14">● WEBRTC ACTIVE • 48kHz OPUS AUDIO • 60 FPS SHADER RENDERER</text>
+  </g>
+</svg>

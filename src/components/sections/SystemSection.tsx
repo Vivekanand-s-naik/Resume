@@ -28,7 +28,7 @@ export const SystemSection: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-12 sm:pb-16 editorial-border-b gap-6">
           <div>
-            <div className="flex items-center gap-2 font-mono text-xs text-[#00F0FF] uppercase tracking-widest mb-3">
+            <div className="flex items-center gap-2 font-mono text-xs text-[#00FF66] uppercase tracking-widest mb-3">
               <span>// 01 ARCHITECTURE PHILOSOPHY</span>
             </div>
             <h2 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tight text-white leading-none">
@@ -106,7 +106,7 @@ export const SystemSection: React.FC = () => {
           <div className="lg:col-span-7 bg-[#0E0E0E] border border-white/15 p-6 sm:p-10 relative overflow-hidden flex flex-col justify-between min-h-[500px]">
             <div>
               {/* Console Header */}
-              <div className="flex items-center justify-between pb-6 border-b border-white/10">
+              <div className="flex items-center justify-between pb-6 border-b border-white/10 relative z-10">
                 <div className="flex items-center gap-3">
                   <Terminal className="w-5 h-5 text-[#00FF66]" />
                   <span className="font-mono text-xs uppercase tracking-widest text-neutral-400">
@@ -115,12 +115,12 @@ export const SystemSection: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2 font-mono text-[10px] text-neutral-500 uppercase">
                   <span className="w-2 h-2 bg-[#00FF66]" />
-                  <span>ONLINE</span>
+                  <span className="text-[#00FF66] font-semibold">ONLINE</span>
                 </div>
               </div>
 
               {/* Layer Detailed Invariants */}
-              <div className="pt-6 space-y-4">
+              <div className="pt-6 space-y-4 relative z-10">
                 <h4 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-white">
                   {SYSTEM_LAYERS[activeLayer].subtitle}
                 </h4>
@@ -145,12 +145,12 @@ export const SystemSection: React.FC = () => {
             </div>
 
             {/* Architecture Code Snippet */}
-            <div className="mt-8 pt-6 border-t border-white/10">
+            <div className="mt-8 pt-6 border-t border-white/10 relative z-10">
               <div className="text-[11px] font-mono text-neutral-400 mb-2 uppercase tracking-wider flex items-center justify-between">
                 <span>// RUNTIME SIGNATURE</span>
-                <span className="text-[#00FF66]">SYNCHRONIZED</span>
+                <span className="text-[#00FF66] font-bold">SYNCHRONIZED</span>
               </div>
-              <pre className="p-4 bg-black border border-white/10 overflow-x-auto text-xs font-mono text-neutral-200 leading-relaxed">
+              <pre className="p-4 bg-black border border-white/10 overflow-x-auto text-xs font-mono text-[#00FF66] leading-relaxed">
                 <code>{SYSTEM_LAYERS[activeLayer].code}</code>
               </pre>
             </div>

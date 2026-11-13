@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="800" viewBox="0 0 1000 800" fill="#0C0E12">
+  <rect width="1000" height="800" fill="#0C0E12"/>
+  <rect x="40" y="40" width="920" height="720" rx="8" fill="#12151B" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <rect x="40" y="40" width="920" height="50" fill="#181B22" rx="8"/>
+  <circle cx="75" cy="65" r="5" fill="#FF5F56"/>
+  <circle cx="95" cy="65" r="5" fill="#FFBD2E"/>
+  <circle cx="115" cy="65" r="5" fill="#00FF66"/>
+  <text x="145" y="70" fill="#D7E2EA" font-family="monospace" font-size="14">vectorflow-benchmark // query-throughput.log</text>
+  <g transform="translate(100, 160)">
+    <rect x="40" y="40" width="720" height="300" fill="#0C0E12" rx="4" stroke="rgba(255,255,255,0.1)"/>
+    <path d="M 60 300 Q 180 240 300 200 T 540 100 T 700 70" fill="none" stroke="#00FF66" stroke-width="4"/>
+    <circle cx="700" cy="70" r="8" fill="#00FF66"/>
+    <text x="560" y="60" fill="#00FF66" font-family="monospace" font-size="14" font-weight="bold">45,000 QPS (P99 &lt; 3.4ms)</text>
+    <rect x="40" y="380" width="720" height="70" rx="4" fill="#0C0E12" stroke="#00FF66" stroke-width="1"/>
+    <text x="60" y="420" fill="#D7E2EA" font-family="monospace" font-size="14">Multi-region Raft cluster across 6 edge nodes with zero-downtime shard rebalancing.</text>
+  </g>
+</svg>

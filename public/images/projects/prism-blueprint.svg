@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="800" viewBox="0 0 1000 800" fill="#0C0E12">
+  <rect width="1000" height="800" fill="#0C0E12"/>
+  <rect x="40" y="40" width="920" height="720" rx="8" fill="#12151B" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <rect x="40" y="40" width="920" height="50" fill="#181B22" rx="8"/>
+  <circle cx="75" cy="65" r="5" fill="#FF5F56"/>
+  <circle cx="95" cy="65" r="5" fill="#FFBD2E"/>
+  <circle cx="115" cy="65" r="5" fill="#00FF66"/>
+  <text x="145" y="70" fill="#D7E2EA" font-family="monospace" font-size="14">prism-ide // autonomous-refactor-diff.ts</text>
+  <g transform="translate(80, 140)">
+    <rect x="20" y="30" width="800" height="280" rx="4" fill="#0C0E12" stroke="rgba(255,255,255,0.08)"/>
+    <text x="45" y="80" fill="#FF5F56" font-family="monospace" font-size="13">- const handleData = (d: any) =&gt; { return transform(d); };</text>
+    <text x="45" y="120" fill="#00FF66" font-family="monospace" font-size="13">+ const handleData = (d: ValidatedPayload): Result&lt;Output&gt; =&gt; {</text>
+    <text x="45" y="160" fill="#00FF66" font-family="monospace" font-size="13">+   return parseAndTransform(d).match({ Ok: v =&gt; v, Err: panic });</text>
+    <text x="45" y="200" fill="#00FF66" font-family="monospace" font-size="13">+ };</text>
+    <rect x="20" y="360" width="800" height="60" rx="4" fill="#0C0E12" stroke="#00FF66" stroke-width="1"/>
+    <text x="45" y="396" fill="#00FF66" font-family="monospace" font-size="14">SANDBOX TEST PASSED (14 tests passed in 82ms) • SCOPE VALIDATED</text>
+  </g>
+</svg>

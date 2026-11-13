@@ -114,7 +114,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
 
     const innerRingGeo = new THREE.RingGeometry(0.52, 0.525, 64);
     const innerRingMat = new THREE.MeshBasicMaterial({
-      color: 0x00F0FF,
+      color: 0x00FF66,
       transparent: true,
       opacity: 0.45,
       side: THREE.DoubleSide,
@@ -204,6 +204,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
 
     const mouse = { x: 0, y: 0 };
     const headRot = { x: 0, y: 0 };
+    const eyeGaze = { x: 0, y: 0 };
 
     // ==============================================================
     // CONTINUOUS ORDERED NON-REPEATING ANIMATION CYCLE
@@ -422,20 +423,21 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
             rig.neck.quaternion.multiply(neckQuat);
           }
 
-          // FIX: Non-accumulating absolute eye gaze tracking
-          // Sets fixed clamped offset relative to rest rotation so eyeballs NEVER continuously spin
+          // Responsive, organic eye gaze tracking interactive to mouse movement
+          // Uses absolute clamped offsets so gaze naturally and smoothly tracks mouse without cumulative spinning
           const leftEyeRest = rig.leftEye ? rig.restRotations.get(rig.leftEye) : null;
           const rightEyeRest = rig.rightEye ? rig.restRotations.get(rig.rightEye) : null;
 
+          const targetLookY = Math.max(-0.42, Math.min(0.42, mouse.x * 0.40));
+          const targetLookX = Math.max(-0.28, Math.min(0.28, -mouse.y * 0.26));
+          eyeGaze.x = lerp(eyeGaze.x, targetLookX, 1 - Math.exp(-dt * 9.0));
+          eyeGaze.y = lerp(eyeGaze.y, targetLookY, 1 - Math.exp(-dt * 9.0));
+
           if (rig.leftEye && leftEyeRest) {
-            const lookY = Math.max(-0.1, Math.min(0.1, mouse.x * 0.1));
-            const lookX = Math.max(-0.06, Math.min(0.06, -mouse.y * 0.06));
-            rig.leftEye.rotation.set(leftEyeRest.x + lookX, leftEyeRest.y + lookY, leftEyeRest.z);
+            rig.leftEye.rotation.set(leftEyeRest.x + eyeGaze.x, leftEyeRest.y + eyeGaze.y, leftEyeRest.z);
           }
           if (rig.rightEye && rightEyeRest) {
-            const lookY = Math.max(-0.1, Math.min(0.1, mouse.x * 0.1));
-            const lookX = Math.max(-0.06, Math.min(0.06, -mouse.y * 0.06));
-            rig.rightEye.rotation.set(rightEyeRest.x + lookX, rightEyeRest.y + lookY, rightEyeRest.z);
+            rig.rightEye.rotation.set(rightEyeRest.x + eyeGaze.x, rightEyeRest.y + eyeGaze.y, rightEyeRest.z);
           }
 
           // Dynamic Natural Blinking

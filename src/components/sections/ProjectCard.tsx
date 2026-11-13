@@ -36,15 +36,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         }}
         className="w-full max-h-[calc(100svh-7.25rem)] bg-[#0C0C0C] border-2 border-[#D7E2EA] rounded-[36px] sm:rounded-[48px] md:rounded-[60px] p-5 sm:p-7 md:p-9 flex flex-col gap-4 sm:gap-5 shadow-2xl relative overflow-hidden group transition-all duration-300"
       >
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#7621B0]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#00FF66]/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#D7E2EA]/20 gap-4 shrink-0">
           <div className="flex items-center gap-4">
-            <span className="text-3xl sm:text-4xl md:text-5xl font-black font-mono text-[#00F0FF]">
+            <span className="text-3xl sm:text-4xl md:text-5xl font-black font-mono text-[#00FF66]">
               {project.number}
             </span>
             <div>
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-white group-hover:text-[#00F0FF] transition-colors">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-white group-hover:text-[#00FF66] transition-colors">
                 {project.title}
               </h3>
               <p className="text-xs sm:text-sm font-mono text-[#8E9AA4]">
@@ -59,7 +59,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             </span>
             <button
               onClick={() => onSelectProject(project)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-black font-semibold text-xs uppercase tracking-wider hover:bg-[#D7E2EA] transition-all cursor-pointer group/btn"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00FF66] hover:bg-[#10B981] text-black font-bold text-xs uppercase tracking-wider transition-all cursor-pointer group/btn shadow-[0_0_15px_rgba(0,255,102,0.25)]"
               aria-label={`Inspect ${project.title} architecture`}
             >
               <span>Architecture Spec</span>
@@ -101,7 +101,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 className="w-full h-full object-cover transition-transform duration-700 group-hover/img3:scale-102"
               />
               <div className="absolute top-4 right-4 flex items-center gap-2">
-                <span className="text-[11px] font-mono text-[#00F0FF] bg-[#0C0C0C]/90 px-3 py-1 rounded-full border border-[#00F0FF]/30 backdrop-blur-sm">
+                <span className="text-[11px] font-mono text-[#00FF66] bg-[#0C0C0C]/90 px-3 py-1 rounded-full border border-[#00FF66]/40 backdrop-blur-sm">
                   ● SYSTEM ACTIVE
                 </span>
               </div>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" fill="#0C0E12">
+  <rect width="600" height="400" fill="#0C0E12"/>
+  <text x="40" y="50" fill="#FFFFFF" font-family="monospace" font-size="15" font-weight="bold">LATENCY PROFILE: P99 184ms</text>
+  <text x="40" y="75" fill="#8E9AA4" font-family="monospace" font-size="12">PIPELINE EXECUTION BREAKDOWN</text>
+  <rect x="40" y="100" width="520" height="32" rx="4" fill="#14171C" stroke="rgba(255,255,255,0.08)"/>
+  <rect x="40" y="100" width="380" height="32" rx="4" fill="#00FF66"/>
+  <text x="55" y="121" fill="#000000" font-family="monospace" font-size="12" font-weight="bold">EMBEDDING_INFERENCE • 38ms</text>
+  <g transform="translate(40, 155)" font-family="monospace" font-size="12">
+    <text x="0" y="20" fill="#8E9AA4">[+] VECTOR_SEARCH (QDRANT):</text>
+    <text x="240" y="20" fill="#00FF66">12ms</text>
+    <text x="0" y="55" fill="#8E9AA4">[+] RERANK (COHERE v3):</text>
+    <text x="240" y="55" fill="#00FF66">44ms</text>
+    <text x="0" y="90" fill="#8E9AA4">[+] LLM_FIRST_TOKEN (STREAM):</text>
+    <text x="240" y="90" fill="#00FF66">90ms</text>
+  </g>
+  <g transform="translate(420, 210)">
+    <circle cx="60" cy="60" r="50" fill="none" stroke="#00FF66" stroke-width="2"/>
+    <text x="60" y="56" fill="#00FF66" font-family="monospace" font-size="15" font-weight="bold" text-anchor="middle">99.98%</text>
+    <text x="60" y="74" fill="#8E9AA4" font-family="monospace" font-size="10" text-anchor="middle">PASS RATE</text>
+  </g>
+</svg>

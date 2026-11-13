@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" fill="#0C0E12">
+  <rect width="600" height="400" fill="#0C0E12"/>
+  <text x="40" y="50" fill="#FFFFFF" font-family="monospace" font-size="15" font-weight="bold">MULTI-STEP AGENT LOOP EXECUTION</text>
+  <text x="40" y="75" fill="#8E9AA4" font-family="monospace" font-size="12">SELF-CORRECTING CODE REFACTORING</text>
+  <g transform="translate(40, 95)" font-family="monospace" font-size="12">
+    <text x="0" y="20" fill="#8E9AA4">1. Generate Semantic AST Diff</text>
+    <text x="0" y="50" fill="#8E9AA4">2. Execute Sandbox Vitest Suite</text>
+    <text x="0" y="80" fill="#8E9AA4">3. Parse Compiler Diagnostic Errors</text>
+    <text x="0" y="110" fill="#00FF66" font-weight="bold">4. Self-Correct &amp; Commit Verified Patch</text>
+  </g>
+  <rect x="40" y="250" width="520" height="45" rx="4" fill="#14171C" stroke="#00FF66" stroke-width="1.5"/>
+  <text x="60" y="278" fill="#00FF66" font-family="monospace" font-size="12" font-weight="bold">ITERATION COUNT: 1.4 avg • BUILD PASS RATE: 99.2%</text>
+</svg>

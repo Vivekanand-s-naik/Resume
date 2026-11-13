@@ -258,10 +258,10 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
                   type="button"
                   onClick={handleExecuteDAG}
                   disabled={isSimulating}
-                  className="px-3 py-1.5 bg-[#00FF66] hover:bg-[#10B981] disabled:opacity-50 text-black font-mono text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer transition-all active:scale-95 rounded-none"
+                  className="px-4 py-2 bg-[#00FF66] hover:bg-[#10B981] disabled:opacity-50 text-black font-mono text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer transition-all active:scale-95 shadow-[0_0_20px_rgba(0,255,102,0.35)] border border-[#00FF66]"
                   aria-label="Simulate LangGraph agent workflow"
                 >
-                  <Play className="w-3 h-3 fill-black" />
+                  <Play className="w-3 h-3 fill-black text-black" />
                   <span>{isSimulating ? 'EXECUTING GRAPH...' : 'SIMULATE AGENT WORKFLOW'}</span>
                 </button>
               </div>
@@ -323,7 +323,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
                 {simLogs.length === 0 ? (
                   <div className="text-neutral-500 flex items-center justify-between py-1">
                     <span>&gt; Standby. Click "SIMULATE AGENT WORKFLOW" to test live stateful orchestration...</span>
-                    <span className="text-[#00FF66] text-[10px]">READY</span>
+                    <span className="text-[#00FF66] text-[10px] font-bold">READY</span>
                   </div>
                 ) : (
                   simLogs.map((log, i) => (
@@ -465,7 +465,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
             <div className="absolute top-4 left-4 z-10 font-mono text-[10px] space-y-1.5 bg-black/85 backdrop-blur-sm border border-white/10 p-3 text-neutral-400 select-none pointer-events-none max-w-[230px]">
               <div className="text-white font-medium tracking-wide flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-[#00FF66]" />
-                <span>// AGENTIC NODE HUD</span>
+                <span className="text-white font-bold">// AGENTIC NODE HUD</span>
               </div>
               <div>
                 STATUS: <span className="text-[#00FF66]">ONLINE &bull; SYNCHRONIZED</span>
@@ -486,7 +486,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
               <button
                 type="button"
                 onClick={handleCycleGesture}
-                className="px-2.5 py-1.5 bg-black/80 hover:bg-black border border-white/20 hover:border-white text-[10px] font-mono text-white flex items-center gap-1.5 transition-all cursor-pointer shadow-lg active:scale-95"
+                className="px-2.5 py-1.5 bg-black/80 hover:bg-black border border-white/20 hover:border-[#00FF66] text-[10px] font-mono text-white flex items-center gap-1.5 transition-all cursor-pointer shadow-lg active:scale-95"
                 title="Click to trigger next human arm gesture"
                 aria-label="Cycle next gesture"
               >

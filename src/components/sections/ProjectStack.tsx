@@ -20,7 +20,7 @@ export const ProjectStack: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-8 editorial-border-b mb-8 sm:mb-10 gap-6">
           <div>
-            <div className="font-mono text-xs text-[#00F0FF] uppercase tracking-widest mb-3">
+            <div className="font-mono text-xs text-[#00FF66] uppercase tracking-widest mb-3">
               // 03 FLAGSHIP SYSTEMS
             </div>
             <h2 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tight text-white leading-none">

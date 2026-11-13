@@ -101,9 +101,9 @@ export const AboutSection: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
               viewport={{ once: true }}
-              className="p-6 rounded-2xl bg-[#12141A]/60 border border-[#262A30] hover:border-[#7621B0]/50 transition-colors"
+              className="p-6 rounded-2xl bg-[#12141A]/60 border border-[#262A30] hover:border-[#00FF66]/50 transition-colors"
             >
-              <div className="text-xs font-mono text-[#00F0FF] uppercase tracking-widest mb-2">
+              <div className="text-xs font-mono text-[#00FF66] uppercase tracking-widest mb-2">
                 0{idx + 1} &bull; {stat.label}
               </div>
               <div className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-white">
