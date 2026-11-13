@@ -1,11 +1,19 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import type { DigitalHumanRig, CharacterQuality } from './rig';
+import type { DigitalHumanRig, CharacterQuality, GesturePose } from './rig';
 import { resolveBoneMap } from './rig';
 import { createProceduralEngineer } from './createProceduralEngineer';
 
 export const DIGITAL_HUMAN_MODEL_URL = '/models/digital-human.glb';
 export const ENABLE_EXTERNAL_GLB = true;
+
+export const ANIMATION_URLS: Record<GesturePose, string> = {
+  idle: '/models/animations/idle.glb',
+  crossedArms: '/models/animations/crossed-arms.glb',
+  thoughtful: '/models/animations/thoughtful.glb',
+  explaining: '/models/animations/explaining.glb',
+  casualHip: '/models/animations/casual.glb',
+};
 
 function collectDisposables(root: THREE.Object3D) {
   const geos: THREE.BufferGeometry[] = [];
@@ -33,7 +41,7 @@ function collectDisposables(root: THREE.Object3D) {
   return { geos, mats, textures };
 }
 
-function bindGltf(scene: THREE.Group, animations: THREE.AnimationClip[]): DigitalHumanRig {
+function bindGltf(scene: THREE.Group, clipMap: Map<GesturePose, THREE.AnimationClip>): DigitalHumanRig {
   const bones = resolveBoneMap(scene);
   const restRotations = new Map<THREE.Object3D, THREE.Euler>();
 
@@ -57,11 +65,39 @@ function bindGltf(scene: THREE.Group, animations: THREE.AnimationClip[]): Digita
     }
   });
 
-  const mixer = animations.length > 0 ? new THREE.AnimationMixer(scene) : null;
-  if (mixer && animations[0]) {
-    const action = mixer.clipAction(animations[0]);
-    action.play();
+  const mixer = new THREE.AnimationMixer(scene);
+  const actions = new Map<GesturePose, THREE.AnimationAction>();
+
+  clipMap.forEach((clip, pose) => {
+    const action = mixer.clipAction(clip);
+    action.setLoop(THREE.LoopRepeat, Infinity);
+    actions.set(pose, action);
+  });
+
+  let currentAction: THREE.AnimationAction | null = null;
+  let activePose: GesturePose = 'idle';
+
+  const idleAction = actions.get('idle');
+  if (idleAction) {
+    idleAction.play();
+    currentAction = idleAction;
+    activePose = 'idle';
   }
+
+  const playGesture = (pose: GesturePose, fadeDuration: number = 0.9) => {
+    if (!mixer) return;
+    const targetAction = actions.get(pose);
+    if (!targetAction || targetAction === currentAction) return;
+
+    if (currentAction) {
+      currentAction.fadeOut(fadeDuration);
+    }
+    targetAction.reset().fadeIn(fadeDuration).play();
+    currentAction = targetAction;
+    activePose = pose;
+  };
+
+  const getCurrentGesture = () => activePose;
 
   let headMesh: THREE.Mesh | null = null;
   const eyeMeshes: THREE.Mesh[] = [];
@@ -226,10 +262,14 @@ function bindGltf(scene: THREE.Group, animations: THREE.AnimationClip[]): Digita
     eyeMeshes,
     aiCore,
     mixer,
+    actions,
+    playGesture,
+    getCurrentGesture,
     restRotations,
     source: 'gltf',
     dispose: () => {
       mixer?.stopAllAction();
+      actions.clear();
       geos.forEach((g) => g.dispose());
       mats.forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
@@ -252,8 +292,25 @@ export async function loadDigitalHuman(quality: CharacterQuality): Promise<Digit
 
   try {
     const loader = new GLTFLoader();
-    const gltf = await loader.loadAsync(DIGITAL_HUMAN_MODEL_URL);
-    return bindGltf(gltf.scene, gltf.animations);
+
+    // Parallel load of avatar and Mixamo motion capture animation clips
+    const [modelGltf, idleGltf, crossedGltf, thoughtfulGltf, explainingGltf, casualGltf] = await Promise.all([
+      loader.loadAsync(DIGITAL_HUMAN_MODEL_URL),
+      loader.loadAsync(ANIMATION_URLS.idle).catch(() => null),
+      loader.loadAsync(ANIMATION_URLS.crossedArms).catch(() => null),
+      loader.loadAsync(ANIMATION_URLS.thoughtful).catch(() => null),
+      loader.loadAsync(ANIMATION_URLS.explaining).catch(() => null),
+      loader.loadAsync(ANIMATION_URLS.casualHip).catch(() => null),
+    ]);
+
+    const clipMap = new Map<GesturePose, THREE.AnimationClip>();
+    if (idleGltf?.animations[0]) clipMap.set('idle', idleGltf.animations[0]);
+    if (crossedGltf?.animations[0]) clipMap.set('crossedArms', crossedGltf.animations[0]);
+    if (thoughtfulGltf?.animations[0]) clipMap.set('thoughtful', thoughtfulGltf.animations[0]);
+    if (explainingGltf?.animations[0]) clipMap.set('explaining', explainingGltf.animations[0]);
+    if (casualGltf?.animations[0]) clipMap.set('casualHip', casualGltf.animations[0]);
+
+    return bindGltf(modelGltf.scene, clipMap);
   } catch (err) {
     console.warn('External GLB model failed to load, falling back to stylized procedural engineer', err);
     return createProceduralEngineer(quality);

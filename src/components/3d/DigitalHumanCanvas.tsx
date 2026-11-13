@@ -2,39 +2,55 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { loadDigitalHuman } from './digitalHuman/loadCharacterModel';
-import type { DigitalHumanRig } from './digitalHuman/rig';
+import type { DigitalHumanRig, GesturePose } from './digitalHuman/rig';
+
+export type { GesturePose } from './digitalHuman/rig';
+export type CharacterRenderMode = 'agent' | 'holo' | 'wireframe';
+export type CameraPreset = 'front' | 'angled' | 'core';
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
 
-export type CharacterRenderMode = 'agent' | 'holo' | 'wireframe';
-
 interface DigitalHumanCanvasProps {
   centered?: boolean;
   mode?: CharacterRenderMode;
+  cameraPreset?: CameraPreset;
+  activeGesture?: GesturePose;
+  isSimulating?: boolean;
+  onPoseChange?: (pose: GesturePose) => void;
   onTriggerPulse?: () => void;
 }
 
 export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
   centered = true,
   mode = 'agent',
+  cameraPreset = 'front',
+  activeGesture,
+  isSimulating = false,
+  onPoseChange,
+  onTriggerPulse,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const prefersReducedMotion = false;
+
+  const rigRef = useRef<DigitalHumanRig | null>(null);
+  const currentGestureRef = useRef<GesturePose>('idle');
+  const onPoseChangeRef = useRef(onPoseChange);
+  onPoseChangeRef.current = onPoseChange;
+
   const pulseTriggerRef = useRef<() => void>(() => {});
   const applyRenderModeRef = useRef<(m: CharacterRenderMode) => void>(() => {});
+  const switchGestureRef = useRef<(pose: GesturePose, isForced?: boolean) => void>(() => {});
 
   useEffect(() => {
-    // Acknowledge centered prop for architectural layout
     void centered;
     const container = containerRef.current;
     if (!container) return;
 
     let disposed = false;
     let animationId = 0;
-    let rig: DigitalHumanRig | null = null;
     let resizeObserver: ResizeObserver | null = null;
 
     const scene = new THREE.Scene();
@@ -54,43 +70,36 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, dprCap));
     container.appendChild(renderer.domElement);
 
-    // High-End Studio Lighting for Sharp Developer Identity
+    // Studio Key & Rim Lighting
     const hemi = new THREE.HemisphereLight(0xc8d6e0, 0x0c0c0c, 0.65);
     scene.add(hemi);
 
-    // Key Light (Facial & Torso Definition)
     const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
     keyLight.position.set(-1.8, 2.8, 2.5);
     scene.add(keyLight);
 
-    // Cool Technical Fill Light
     const fillLight = new THREE.DirectionalLight(0x4a5568, 0.55);
     fillLight.position.set(2.2, 1.0, 1.8);
     scene.add(fillLight);
 
-    // Razor-Sharp Terminal Green Rim Light for edge separation
-    const rimLight = new THREE.DirectionalLight(0x00FF66, 0.85);
+    const rimLight = new THREE.DirectionalLight(0x00FF66, 0.9);
     rimLight.position.set(1.6, 2.2, -2.4);
     scene.add(rimLight);
 
-    // Secondary Electric Cyan Top-Rim
     const cyanRim = new THREE.DirectionalLight(0x00F0FF, 0.5);
     cyanRim.position.set(-1.6, 2.6, -2.0);
     scene.add(cyanRim);
 
-    // AI Core Dynamic Point Light (casts live colored illumination onto the character)
+    // AI Core Dynamic Point Light
     const coreLight = new THREE.PointLight(0x00FF66, 0.9, 2.8);
     scene.add(coreLight);
 
-    // ==========================================
-    // CREATIVE ELEMENT 1: Holographic Ground Reticle
-    // ==========================================
+    // Holographic Ground Reticle
     const reticleGroup = new THREE.Group();
     reticleGroup.position.set(0, 0.002, 0);
     reticleGroup.rotation.x = -Math.PI / 2;
     scene.add(reticleGroup);
 
-    // Ground Contact Shadow
     const shadowGeo = new THREE.CircleGeometry(0.52, 32);
     const shadowMat = new THREE.MeshBasicMaterial({
       color: 0x000000,
@@ -102,7 +111,6 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     groundShadow.position.z = -0.001;
     reticleGroup.add(groundShadow);
 
-    // Thin Cyan Tech Ring
     const innerRingGeo = new THREE.RingGeometry(0.52, 0.525, 64);
     const innerRingMat = new THREE.MeshBasicMaterial({
       color: 0x00F0FF,
@@ -113,7 +121,6 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     });
     reticleGroup.add(new THREE.Mesh(innerRingGeo, innerRingMat));
 
-    // Outer Terminal-Green Segmented Ring
     const outerRingGeo = new THREE.RingGeometry(0.74, 0.746, 64);
     const outerRingMat = new THREE.MeshBasicMaterial({
       color: 0x00FF66,
@@ -124,7 +131,6 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     });
     reticleGroup.add(new THREE.Mesh(outerRingGeo, outerRingMat));
 
-    // Cardinal Coordinate Tick Marks
     const tickGeo = new THREE.PlaneGeometry(0.06, 0.004);
     const tickMat = new THREE.MeshBasicMaterial({
       color: 0x00FF66,
@@ -140,9 +146,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       reticleGroup.add(tick);
     }
 
-    // ==========================================
-    // CREATIVE ELEMENT 2: Interactive Ripple Shockwave
-    // ==========================================
+    // Interactive Shockwave Pulse
     const pulseRingGeo = new THREE.RingGeometry(0.1, 0.12, 48);
     const pulseRingMat = new THREE.MeshBasicMaterial({
       color: 0x00FF66,
@@ -161,9 +165,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       pulseProgress = 0;
     };
 
-    // ==========================================
-    // CREATIVE ELEMENT 3: Atmospheric Telemetry Dust
-    // ==========================================
+    // Telemetry Particle Dust
     const atmosphere = new THREE.Group();
     scene.add(atmosphere);
 
@@ -189,14 +191,15 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       atmosphere.add(new THREE.Points(particleGeo, particleMat));
     }
 
-    // Camera and Target Configuration
+    // Camera Configuration & Focusing
     const coreWorld = new THREE.Vector3();
     const lookTarget = new THREE.Vector3(0, 1.34, 0);
 
     const rest = {
+      baseCamZ: 2.35,
+      camX: 0,
       camY: 1.38,
       camZ: 2.35,
-      camLookY: 1.34,
       coreX: 0.38,
       coreY: 1.42,
     };
@@ -204,14 +207,61 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     const mouse = { x: 0, y: 0 };
     const eyeRot = { x: 0, y: 0 };
     const headRot = { x: 0, y: 0 };
-    const neckRot = { x: 0, y: 0 };
-    const shoulderRot = { x: 0, y: 0 };
-    const spineRot = { x: 0, y: 0 };
-    const bodyPos = { x: 0, y: 0 };
     const corePos = { x: 0, y: 0 };
 
+    // ==========================================
+    // NATURAL HUMAN CADENCE STATE MACHINE
+    // ==========================================
+    let currentPose: GesturePose = 'idle';
+    currentGestureRef.current = 'idle';
+    // Initial still idle duration: 10 to 14 seconds like a real person
+    let poseTimer = 10.0 + Math.random() * 4.0;
+
+    const performGestureTransition = (target: GesturePose, isForced: boolean) => {
+      if (target === currentPose && !isForced) return;
+      currentPose = target;
+      currentGestureRef.current = target;
+
+      if (rigRef.current) {
+        rigRef.current.playGesture(target, 0.95);
+      }
+
+      // Timing cadence:
+      // Still normal human idle rests for 10-14 seconds
+      // Crossed arms holds confidently for 10-13 seconds
+      // Gestures hold for 8-11 seconds
+      if (target === 'idle') {
+        poseTimer = 10.0 + Math.random() * 4.0;
+      } else if (target === 'crossedArms') {
+        poseTimer = 10.0 + Math.random() * 3.0;
+      } else {
+        poseTimer = 8.0 + Math.random() * 3.0;
+      }
+
+      // Only notify parent when naturally cycling to avoid infinite feedback loops
+      if (!isForced) {
+        onPoseChangeRef.current?.(target);
+      }
+    };
+
+    switchGestureRef.current = (pose: GesturePose, isForced = true) => {
+      performGestureTransition(pose, isForced);
+    };
+
+    const advanceNaturalCadence = () => {
+      // Natural human rule:
+      // If currently performing a gesture -> ALWAYS return to still normal human (idle)
+      // If currently still/idle -> select a natural organic gesture
+      if (currentPose !== 'idle') {
+        performGestureTransition('idle', false);
+      } else {
+        const actionOptions: GesturePose[] = ['crossedArms', 'thoughtful', 'explaining', 'casualHip'];
+        const next = actionOptions[Math.floor(Math.random() * actionOptions.length)];
+        performGestureTransition(next, false);
+      }
+    };
+
     const onMouseMove = (e: MouseEvent) => {
-      // If pointer is moving across window, compute normalized coords
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -((e.clientY / window.innerHeight) * 2 - 1);
     };
@@ -220,7 +270,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       window.addEventListener('mousemove', onMouseMove, { passive: true });
     }
 
-    // Precision Layout Camera to Guarantee Perfect Fit
+    // Dynamic Camera Framing
     const layoutCamera = (width: number, height: number) => {
       if (!width || !height) return;
       const aspect = width / height;
@@ -228,25 +278,21 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
 
-      // We want to frame from torso (y ~ 0.85m) to head top (y ~ 1.85m) = ~1.15m height
-      // and width of shoulders + companion core = ~1.1m
       const vFovRad = THREE.MathUtils.degToRad(camera.fov);
       const reqDistY = (1.18 / 2) / Math.tan(vFovRad / 2);
       const reqDistX = (1.12 / 2) / (Math.tan(vFovRad / 2) * aspect);
-
-      // Distance that guarantees upper body fits without clipping on any device:
       const optimalDist = Math.max(reqDistY, reqDistX, 2.2);
 
+      rest.baseCamZ = optimalDist;
       rest.camZ = optimalDist;
       rest.camY = 1.38;
-      rest.camLookY = 1.34;
 
       camera.position.set(0, rest.camY, rest.camZ);
-      lookTarget.set(0, rest.camLookY, 0);
+      lookTarget.set(0, 1.34, 0);
       camera.lookAt(lookTarget);
 
-      if (rig) {
-        rig.root.position.set(0, 0, 0);
+      if (rigRef.current) {
+        rigRef.current.root.position.set(0, 0, 0);
       }
     };
 
@@ -266,8 +312,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     );
     observer.observe(container);
 
-    // Natural Blinking State
-    let blinkTimer = 3.0 + Math.random() * 2.5;
+    let blinkTimer = 3.5 + Math.random() * 2.5;
     let isBlinking = false;
     let blinkPhase = 0;
 
@@ -276,6 +321,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
 
     // Material Mode Updater
     const applyRenderMode = (currentMode: CharacterRenderMode) => {
+      const rig = rigRef.current;
       if (!rig) return;
       rig.root.traverse((obj) => {
         const mesh = obj as THREE.Mesh;
@@ -290,16 +336,15 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
             m.wireframe = true;
             m.color.set('#00FF66');
             m.emissive.set('#00FF66');
-            m.emissiveIntensity = 0.4;
+            m.emissiveIntensity = 0.45;
           } else if (currentMode === 'holo') {
             m.wireframe = false;
             m.transparent = true;
             m.opacity = 0.85;
             m.color.set('#00F0FF');
             m.emissive.set('#00F0FF');
-            m.emissiveIntensity = 0.35;
+            m.emissiveIntensity = 0.38;
           } else {
-            // Default agent mode
             m.wireframe = false;
             m.transparent = false;
             m.opacity = 1.0;
@@ -325,6 +370,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     };
     applyRenderModeRef.current = applyRenderMode;
 
+    // The Main Kinematics Animation Loop
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       if (!isVisible || disposed) return;
@@ -333,7 +379,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       const t = clock.elapsedTime;
       const reduced = prefersReducedMotion;
 
-      // Handle Ripple Pulse Shockwave
+      // Pulse Shockwave Expansion
       if (pulseProgress >= 0) {
         pulseProgress += dt * 2.2;
         const p = Math.min(pulseProgress, 1.0);
@@ -342,101 +388,42 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
         if (p >= 1.0) pulseProgress = -1;
       }
 
-      // Rotate ground tech reticle
       reticleGroup.rotation.z = -t * 0.07;
 
+      // Advance Natural Human Cadence Timer
+      poseTimer -= dt;
+      if (poseTimer <= 0) {
+        advanceNaturalCadence();
+      }
+
+      const rig = rigRef.current;
       if (rig) {
-        // Direct, confident interactive kinematics
-        // 1. Eyes react fast to cursor
-        const targetEyeY = reduced ? 0 : mouse.x * 0.35;
-        const targetEyeX = reduced ? 0 : -mouse.y * 0.25;
-        eyeRot.y = lerp(eyeRot.y, targetEyeY, 1 - Math.exp(-dt * 12));
-        eyeRot.x = lerp(eyeRot.x, targetEyeX, 1 - Math.exp(-dt * 12));
+        // Update Mixamo Motion Capture Animation Tracks
+        rig.mixer?.update(dt);
 
-        // 2. Head follows smoothly with natural damping
-        const targetHeadY = reduced ? 0 : mouse.x * 0.24;
-        const targetHeadX = reduced ? 0 : -mouse.y * 0.15;
-        headRot.y = lerp(headRot.y, targetHeadY, 1 - Math.exp(-dt * 5.0));
-        headRot.x = lerp(headRot.x, targetHeadX, 1 - Math.exp(-dt * 5.0));
-
-        // 3. Neck bridges torso and head
-        neckRot.y = lerp(neckRot.y, headRot.y * 0.35, 1 - Math.exp(-dt * 3.8));
-        neckRot.x = lerp(neckRot.x, headRot.x * 0.32, 1 - Math.exp(-dt * 3.8));
-
-        // 4. Shoulders and upper chest follow subtly
-        const targetShoulderY = reduced ? 0 : mouse.x * 0.06;
-        shoulderRot.y = lerp(shoulderRot.y, targetShoulderY, 1 - Math.exp(-dt * 2.5));
-
-        // 5. Spine
-        const targetSpineY = reduced ? 0 : mouse.x * 0.05;
-        spineRot.y = lerp(spineRot.y, targetSpineY, 1 - Math.exp(-dt * 2.0));
-
-        // Respiration & natural harmonics
-        const breathe = reduced ? 0 : Math.sin(t * 1.2) * 0.01;
-        const chestExpand = reduced ? 0 : Math.sin(t * 1.2 + 0.2) * 0.014;
-        const sway = reduced ? 0 : Math.sin(t * 0.45) * 0.005;
-
-        const getRest = (node: THREE.Object3D | null) => {
-          if (!node || !rig) return { x: 0, y: 0, z: 0 };
-          const r = rig.restRotations.get(node);
-          return r ? { x: r.x, y: r.y, z: r.z } : { x: 0, y: 0, z: 0 };
-        };
-
-        // Body parallax and breathing
-        const targetBodyX = reduced ? 0 : mouse.x * 0.025;
-        bodyPos.x = lerp(bodyPos.x, targetBodyX, 1 - Math.exp(-dt * 2.0));
-
-        // Root is locked centered at 0 with subtle breathing micro-motion
-        rig.root.position.x = bodyPos.x + sway * 0.3;
-        rig.root.position.y = breathe * 0.15;
-        rig.root.position.z = 0;
-
-        // Apply Spine and Chest
-        if (rig.spine) {
-          const r = getRest(rig.spine);
-          rig.spine.rotation.set(r.x, r.y + spineRot.y * 0.3, r.z);
-        }
-        if (rig.spine1) {
-          const r = getRest(rig.spine1);
-          rig.spine1.rotation.set(r.x + chestExpand * 0.3, r.y + spineRot.y * 0.5, r.z);
-        }
-        if (rig.spine2) {
-          const r = getRest(rig.spine2);
-          rig.spine2.rotation.set(r.x + chestExpand * 0.6, r.y + spineRot.y * 0.8, r.z);
-        }
-
-        // Apply Shoulders
-        if (rig.leftShoulder) {
-          const r = getRest(rig.leftShoulder);
-          rig.leftShoulder.rotation.set(r.x, r.y + shoulderRot.y * 0.3, r.z + breathe * 0.2);
-        }
-        if (rig.rightShoulder) {
-          const r = getRest(rig.rightShoulder);
-          rig.rightShoulder.rotation.set(r.x, r.y + shoulderRot.y * 0.3, r.z - breathe * 0.2);
-        }
-
-        // Apply Neck & Head
-        if (rig.neck) {
-          const r = getRest(rig.neck);
-          rig.neck.rotation.set(r.x + neckRot.x, r.y + neckRot.y, r.z);
-        }
-        if (rig.head) {
-          const r = getRest(rig.head);
-          rig.head.rotation.set(r.x + headRot.x, r.y + headRot.y, r.z);
-        }
-
-        // Apply Eyes
-        if (rig.leftEye) {
-          const r = getRest(rig.leftEye);
-          rig.leftEye.rotation.set(r.x + eyeRot.x, r.y + eyeRot.y, r.z);
-        }
-        if (rig.rightEye) {
-          const r = getRest(rig.rightEye);
-          rig.rightEye.rotation.set(r.x + eyeRot.x, r.y + eyeRot.y, r.z);
-        }
-
-        // Dynamic Natural Blinking
+        // Subtle Mouse Kinematics Layered Additively
         if (!reduced) {
+          const targetHeadY = mouse.x * 0.24;
+          const targetHeadX = -mouse.y * 0.15;
+          headRot.y = lerp(headRot.y, targetHeadY, 1 - Math.exp(-dt * 4.5));
+          headRot.x = lerp(headRot.x, targetHeadX, 1 - Math.exp(-dt * 4.5));
+
+          if (rig.head) {
+            rig.head.rotation.y += headRot.y * 0.32;
+            rig.head.rotation.x += headRot.x * 0.22;
+          }
+          if (rig.neck) {
+            rig.neck.rotation.y += headRot.y * 0.14;
+          }
+
+          if (rig.leftEye && rig.rightEye) {
+            eyeRot.y = lerp(eyeRot.y, mouse.x * 0.32, 1 - Math.exp(-dt * 10));
+            eyeRot.x = lerp(eyeRot.x, -mouse.y * 0.2, 1 - Math.exp(-dt * 10));
+            rig.leftEye.rotation.y += eyeRot.y * 0.3;
+            rig.rightEye.rotation.y += eyeRot.y * 0.3;
+          }
+
+          // Dynamic Natural Blinking
           blinkTimer -= dt;
           if (blinkTimer <= 0 && !isBlinking) {
             isBlinking = true;
@@ -461,9 +448,10 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
           }
         }
 
-        // Floating AI Core Dynamic Animation & Gyroscopic Rotations
-        const coreBobY = Math.sin(t * 1.6) * 0.035;
-        const coreBobX = Math.cos(t * 1.1) * 0.015;
+        // AI Core Dynamic Orbit & Reactive Quantum Spin
+        const speedMultiplier = isSimulating ? 3.0 : 1.0;
+        const coreBobY = Math.sin(t * (1.6 * speedMultiplier)) * 0.035;
+        const coreBobX = Math.cos(t * (1.1 * speedMultiplier)) * 0.015;
         const coreTargetX = reduced ? 0 : mouse.x * 0.04;
         const coreTargetY = reduced ? 0 : mouse.y * 0.03;
         corePos.x = lerp(corePos.x, coreTargetX, 1 - Math.exp(-dt * 3.0));
@@ -472,40 +460,59 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
         rig.aiCore.position.x = rest.coreX + corePos.x + coreBobX;
         rig.aiCore.position.y = rest.coreY + corePos.y + coreBobY;
 
-        // Rotate individual gyro parts
         const innerMesh = rig.aiCore.children[0];
         const shellMesh = rig.aiCore.children[1];
         const ring1 = rig.aiCore.children[2];
         const ring2 = rig.aiCore.children[3];
 
         if (innerMesh) {
-          innerMesh.rotation.y = t * 0.6;
-          innerMesh.rotation.x = t * 0.4;
-          const pulse = 1 + Math.sin(t * 3.2) * 0.12;
+          innerMesh.rotation.y = t * 0.6 * speedMultiplier;
+          innerMesh.rotation.x = t * 0.4 * speedMultiplier;
+          const pulse = (isSimulating ? 1.2 : 1.0) + Math.sin(t * (3.2 * speedMultiplier)) * (isSimulating ? 0.25 : 0.12);
           innerMesh.scale.setScalar(pulse);
         }
         if (shellMesh) {
-          shellMesh.rotation.y = -t * 0.45;
-          shellMesh.rotation.z = t * 0.3;
+          shellMesh.rotation.y = -t * 0.45 * speedMultiplier;
+          shellMesh.rotation.z = t * 0.3 * speedMultiplier;
         }
         if (ring1) {
-          ring1.rotation.z = t * 0.8;
+          ring1.rotation.z = t * 0.8 * speedMultiplier;
         }
         if (ring2) {
-          ring2.rotation.y = -t * 0.65;
+          ring2.rotation.y = -t * 0.65 * speedMultiplier;
         }
 
         rig.aiCore.getWorldPosition(coreWorld);
         coreLight.position.copy(coreWorld);
-
-        // Animation mixer update if any clips active
-        rig.mixer?.update(dt);
+        coreLight.intensity = isSimulating ? 1.8 : 0.9;
       }
 
-      // Smooth camera parallax centered on the character
-      camera.position.x = lerp(camera.position.x, mouse.x * 0.08, 1 - Math.exp(-dt * 2.5));
-      camera.position.y = lerp(camera.position.y, rest.camY + mouse.y * 0.04, 1 - Math.exp(-dt * 2.5));
-      camera.position.z = lerp(camera.position.z, rest.camZ, 1 - Math.exp(-dt * 2.5));
+      // Smooth Camera Positioning with Preset Interpolation
+      let targetCamX = 0;
+      let targetCamY = rest.camY;
+      let targetCamZ = rest.baseCamZ;
+      let targetLookY = 1.34;
+      let targetLookX = 0;
+
+      if (cameraPreset === 'angled') {
+        targetCamX = 0.45;
+        targetCamY = rest.camY - 0.02;
+        targetCamZ = rest.baseCamZ * 0.92;
+        targetLookX = 0.06;
+      } else if (cameraPreset === 'core') {
+        targetCamX = 0.28;
+        targetCamY = 1.42;
+        targetCamZ = rest.baseCamZ * 0.74;
+        targetLookX = 0.32;
+        targetLookY = 1.40;
+      }
+
+      camera.position.x = lerp(camera.position.x, targetCamX + mouse.x * 0.08, 1 - Math.exp(-dt * 2.5));
+      camera.position.y = lerp(camera.position.y, targetCamY + mouse.y * 0.04, 1 - Math.exp(-dt * 2.5));
+      camera.position.z = lerp(camera.position.z, targetCamZ, 1 - Math.exp(-dt * 2.5));
+
+      lookTarget.x = lerp(lookTarget.x, targetLookX, 1 - Math.exp(-dt * 2.5));
+      lookTarget.y = lerp(lookTarget.y, targetLookY, 1 - Math.exp(-dt * 2.5));
       camera.lookAt(lookTarget);
 
       if (!prefersReducedMotion) {
@@ -520,12 +527,19 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
         loaded.dispose();
         return;
       }
-      rig = loaded;
+      rigRef.current = loaded;
       rest.coreX = loaded.aiCore.position.x;
       rest.coreY = loaded.aiCore.position.y;
       scene.add(loaded.root);
       layoutCamera(container.clientWidth, container.clientHeight);
       applyRenderMode(mode);
+
+      // Start with initial active gesture if requested
+      if (activeGesture && activeGesture !== 'idle') {
+        loaded.playGesture(activeGesture, 0.5);
+        currentPose = activeGesture;
+        currentGestureRef.current = activeGesture;
+      }
     });
 
     animate();
@@ -537,7 +551,8 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       resizeObserver?.disconnect();
       observer.disconnect();
       cancelAnimationFrame(animationId);
-      rig?.dispose();
+      rigRef.current?.dispose();
+      rigRef.current = null;
       particleGeo?.dispose();
       particleMat?.dispose();
       shadowGeo.dispose();
@@ -557,13 +572,30 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
     };
   }, [isMobile, prefersReducedMotion]);
 
-  // Handle mode changes dynamically
+  // Handle external mode changes
   useEffect(() => {
     applyRenderModeRef.current(mode);
   }, [mode]);
 
+  // Handle forced active gesture from parent cleanly without feedback loops
+  useEffect(() => {
+    if (activeGesture && activeGesture !== currentGestureRef.current) {
+      switchGestureRef.current(activeGesture, true);
+    }
+  }, [activeGesture]);
+
   const handleContainerClick = () => {
     pulseTriggerRef.current();
+
+    // User click cycles to next gesture:
+    // idle -> crossedArms -> thoughtful -> explaining -> casualHip -> idle
+    const list: GesturePose[] = ['idle', 'crossedArms', 'thoughtful', 'explaining', 'casualHip'];
+    const currentIdx = list.indexOf(currentGestureRef.current);
+    const nextPose = list[(currentIdx + 1) % list.length];
+
+    switchGestureRef.current(nextPose, true);
+    onPoseChange?.(nextPose);
+    onTriggerPulse?.();
   };
 
   return (
@@ -571,7 +603,7 @@ export const DigitalHumanCanvas: React.FC<DigitalHumanCanvasProps> = ({
       ref={containerRef}
       onClick={handleContainerClick}
       className="absolute inset-0 w-full h-full cursor-pointer z-0 overflow-hidden select-none"
-      title="Click 3D Viewport to Trigger Quantum Pulse"
+      title="Click 3D Viewport to Trigger Next Human Gesture & Quantum Pulse"
       aria-label="Interactive 3D Agent Model Canvas"
     />
   );

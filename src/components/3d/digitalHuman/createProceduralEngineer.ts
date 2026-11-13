@@ -175,22 +175,42 @@ export function createProceduralEngineer(quality: CharacterQuality): DigitalHuma
 
   const leftArmGroup = new THREE.Group();
   const rightArmGroup = new THREE.Group();
+  const leftForeArmGroup = new THREE.Group();
+  const rightForeArmGroup = new THREE.Group();
+  const leftHandGroup = new THREE.Group();
+  const rightHandGroup = new THREE.Group();
 
-  const makeArm = (side: number, armGroup: THREE.Group) => {
+  const makeArm = (
+    side: number,
+    armGroup: THREE.Group,
+    foreArmGroup: THREE.Group,
+    handGroup: THREE.Group
+  ) => {
     armGroup.position.set(side * 0.26, 0.02, 0);
     armGroup.rotation.z = side * 0.16;
     armGroup.rotation.x = 0.1 + (side > 0 ? 0.08 : 0);
     const upper = new THREE.Mesh(trackGeo(new THREE.CapsuleGeometry(0.055, 0.26, 6, segs)), cloth);
     upper.position.y = -0.16;
+    armGroup.add(upper);
+
+    foreArmGroup.position.set(side * 0.02, -0.32, 0.04);
+    foreArmGroup.rotation.x = -0.35;
     const forearm = new THREE.Mesh(trackGeo(new THREE.CapsuleGeometry(0.045, 0.24, 6, segs)), cloth);
-    forearm.position.set(side * 0.02, -0.42, 0.04);
-    forearm.rotation.x = -0.35;
+    forearm.position.y = -0.12;
+    foreArmGroup.add(forearm);
+    armGroup.add(foreArmGroup);
+
+    handGroup.position.set(0, -0.26, 0.04);
     const hand = new THREE.Mesh(trackGeo(new THREE.SphereGeometry(0.048, sphereSegs, sphereSegs)), skin);
-    hand.position.set(side * 0.02, -0.58, 0.08);
-    armGroup.add(upper, forearm, hand);
+    handGroup.add(hand);
+    foreArmGroup.add(handGroup);
+
     return armGroup;
   };
-  shoulders.add(makeArm(-1, leftArmGroup), makeArm(1, rightArmGroup));
+  shoulders.add(
+    makeArm(-1, leftArmGroup, leftForeArmGroup, leftHandGroup),
+    makeArm(1, rightArmGroup, rightForeArmGroup, rightHandGroup)
+  );
 
   const neckMesh = new THREE.Mesh(trackGeo(new THREE.CylinderGeometry(0.055, 0.068, 0.1, segs)), skin);
   neckMesh.position.y = 0.12;
@@ -320,7 +340,20 @@ export function createProceduralEngineer(quality: CharacterQuality): DigitalHuma
   });
 
   const restRotations = new Map<THREE.Object3D, THREE.Euler>();
-  [head, torso, shoulders, pelvis, leftArmGroup, rightArmGroup, leftEye, rightEye].forEach((obj) => {
+  [
+    head,
+    torso,
+    shoulders,
+    pelvis,
+    leftArmGroup,
+    rightArmGroup,
+    leftForeArmGroup,
+    rightForeArmGroup,
+    leftHandGroup,
+    rightHandGroup,
+    leftEye,
+    rightEye,
+  ].forEach((obj) => {
     restRotations.set(obj, obj.rotation.clone());
   });
 
@@ -339,10 +372,10 @@ export function createProceduralEngineer(quality: CharacterQuality): DigitalHuma
     rightShoulder: shoulders,
     leftArm: leftArmGroup,
     rightArm: rightArmGroup,
-    leftForeArm: null,
-    rightForeArm: null,
-    leftHand: null,
-    rightHand: null,
+    leftForeArm: leftForeArmGroup,
+    rightForeArm: rightForeArmGroup,
+    leftHand: leftHandGroup,
+    rightHand: rightHandGroup,
     leftUpLeg: null,
     rightUpLeg: null,
     leftLeg: null,
@@ -358,6 +391,9 @@ export function createProceduralEngineer(quality: CharacterQuality): DigitalHuma
     eyeMeshes: [leftEye.children[0] as THREE.Mesh, rightEye.children[0] as THREE.Mesh],
     aiCore,
     mixer: null,
+    actions: new Map(),
+    playGesture: () => {},
+    getCurrentGesture: () => 'idle',
     restRotations,
     source: 'procedural',
     dispose: () => {

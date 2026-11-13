@@ -1,6 +1,7 @@
-import type { AnimationMixer, Group, Object3D, Mesh, Euler } from 'three';
+import type { AnimationMixer, AnimationAction, Group, Object3D, Mesh, Euler } from 'three';
 
 export type CharacterQuality = 'high' | 'low';
+export type GesturePose = 'idle' | 'crossedArms' | 'thoughtful' | 'explaining' | 'casualHip';
 
 export interface FingerBones {
   thumb: Object3D[];
@@ -44,6 +45,9 @@ export interface DigitalHumanRig {
   eyeMeshes: Mesh[];
   aiCore: Object3D;
   mixer: AnimationMixer | null;
+  actions: Map<GesturePose, AnimationAction>;
+  playGesture: (pose: GesturePose, fadeDuration?: number) => void;
+  getCurrentGesture: () => GesturePose;
   restRotations: Map<Object3D, Euler>;
   source: 'procedural' | 'gltf';
   dispose: () => void;
