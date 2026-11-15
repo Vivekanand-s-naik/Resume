@@ -4,75 +4,81 @@ export const SYSTEM_LAYERS: SystemLayer[] = [
   {
     step: "01",
     title: "INTELLIGENCE",
-    subtitle: "Reasoning & Model Topology",
-    description: "Architecting agent graphs, structured output schemas, dynamic tool selection, and context-window optimization to extract deterministic reasoning from probabilistic foundation models.",
+    subtitle: "Reasoning & LangGraph DAGs",
+    description: "Architecting stateful multi-step agent graphs, structured output schemas, dynamic tool execution, and cyclic context optimization with LangChain and LangGraph.",
     details: [
-      "Agent DAG orchestration & tool dispatch",
-      "Model routing (Latency vs Quality trade-offs)",
-      "Strict JSON/Pydantic structured output validation",
-      "Self-correction loops & regression guardrails"
+      "LangGraph cyclic state graph & checkpointing",
+      "Dynamic tool selection & execution loops",
+      "Strict Pydantic structured output validation",
+      "Autonomous error recovery & self-correction"
     ],
-    code: `// Agent Decision Pipeline
-const supervisor = new AgentSupervisor({
-  strategy: 'hierarchical-dag',
-  tools: [vectorSearch, codeSandbox, webExtractor],
-  fallbackPolicy: 'exponential-backoff'
-});
-const response = await supervisor.evaluate(intent);`
+    code: `# LangGraph Stateful Cyclic Agent Workflow
+workflow = StateGraph(AgentState)
+workflow.add_node("agent", call_model)
+workflow.add_node("tools", tool_executor)
+workflow.add_conditional_edges(
+    "agent", should_continue,
+    {"continue": "tools", "end": END}
+)
+app = workflow.compile(checkpointer=MemorySaver())`
   },
   {
     step: "02",
-    title: "DATA",
-    subtitle: "Embeddings, Vectors & Pipelines",
-    description: "Structuring high-dimensional vector representations, hybrid semantic search, chunking heuristics, and low-latency cache layers that keep context fresh and precise.",
+    title: "DATA & EMBEDDINGS",
+    subtitle: "ChromaDB, Vectors & RAG Pipelines",
+    description: "Structuring document loading, recursive chunking, dense vector representations, and low-latency similarity retrieval that keeps context fresh and grounded.",
     details: [
-      "HNSW vector indexing & Product Quantization",
-      "Hybrid sparse (BM25) + dense embedding fusion",
-      "Distributed cache coherence via Redis Cluster",
-      "Realtime ingestion pipelines with CDC (Change Data Capture)"
+      "Recursive text chunking & token optimization",
+      "ChromaDB local vector store indexing",
+      "Cosine & Euclidean vector similarity search",
+      "PostgreSQL relational & GIS spatial persistence"
     ],
-    code: `// Hybrid Retrieval Fusion
-const matches = await qdrant.searchHybrid({
-  collection: 'corpus_v2',
-  denseVector: await embedQuery(userQuery),
-  sparseIndices: bm25Tokenize(userQuery),
-  rerank: 'cohere-rerank-v3',
-  limit: 10
-});`
+    code: `# ChromaDB Similarity Retrieval Pipeline
+client = chromadb.PersistentClient(path="./chroma_db")
+collection = client.get_or_create_collection("docs_rag")
+results = collection.query(
+    query_texts=["Explain LangGraph cyclic state"],
+    n_results=5,
+    include=["documents", "distances", "metadatas"]
+)`
   },
   {
     step: "03",
-    title: "SYSTEMS",
-    subtitle: "Resilient Distributed Microservices",
-    description: "Constructing high-throughput gRPC services, WebSocket/WebRTC media gateways, worker pools, and memory-mapped persistence engines that never bottleneck.",
+    title: "VISION & BACKEND",
+    subtitle: "YOLO Inference & FastAPI Microservices",
+    description: "Constructing high-throughput FastAPI and Flask services, real-time OpenCV video streams, YOLO multi-class object detection, and background alert throttling with Firebase.",
     details: [
-      "Sub-20ms gRPC & WebRTC media transmission",
-      "Asynchronous worker queues with Celery & Redis",
-      "Fault-tolerant Raft consensus state machines",
-      "Dockerized microVM code execution sandboxes"
+      "Real-time video frame processing with OpenCV",
+      "YOLOv8 multi-class object & activity detection",
+      "Background alert throttling with cooldown timers",
+      "Firebase live surveillance event streaming"
     ],
-    code: `// High-Concurrency Event Stream
-let stream = WebRTCGateway::bind("0.0.0.0:8080")
-    .with_zero_copy_ring_buffer(64 * 1024)
-    .spawn_worker_pool(16);
-stream.listen_bidirectional(|frame| process_audio(frame));`
+    code: `# Real-Time Vision & Alert Throttling
+@app.post("/stream/detect")
+async def process_frame(payload: FramePayload):
+    boxes = yolo_model(payload.frame, conf=0.65)
+    gaze = estimate_gaze(payload.frame, face_landmarks)
+    if should_trigger_alert(boxes, cooldown=60):
+        await firebase_sync.dispatch_event(boxes)
+    return {"status": "ok", "fps": 32.4}`
   },
   {
     step: "04",
-    title: "EXPERIENCE",
-    subtitle: "Pixel-Level Kinetic Ergonomics",
-    description: "Translating complex backend streams into instant, joyful interfaces with sub-16ms framerates, WebGL spatial computing, optimistic state updates, and accessible design.",
+    title: "INTERFACE & 3D",
+    subtitle: "React 19 & GPU-Accelerated WebGL",
+    description: "Translating complex backend streams and AI models into instant interfaces with sub-16ms framerates, Three.js 3D avatar mocap playback, and responsive Tailwind styling.",
     details: [
-      "Zero-latency optimistic UI with rollback",
-      "GPU-accelerated Three.js & GLSL shaders",
-      "Lenis smooth physics & GSAP ScrollTrigger",
-      "Accessible ARIA landmarks & WCAG 2.1 compliance"
+      "Sub-16ms React 19 UI with optimistic updates",
+      "Three.js 3D character with Mixamo mocap rigs",
+      "Leaflet GIS map coordinate integrations",
+      "Custom dark-mode ergonomics & green HUD glow"
     ],
-    code: `// 60fps GPU Kinetic Viewport
-useFrame(({ clock, mouse }) => {
-  material.uniforms.uTime.value = clock.getElapsedTime();
-  material.uniforms.uPointer.value.lerp(mouse, 0.05);
-  camera.lookAt(targetPosition);
-});`
+    code: `// Sub-16ms 3D Kinematics & React Loop
+const animate = () => {
+  requestAnimationFrame(animate);
+  mixer.update(clock.getDelta());
+  camera.position.lerp(targetCam, 0.05);
+  renderer.render(scene, camera);
+};`
   }
 ];

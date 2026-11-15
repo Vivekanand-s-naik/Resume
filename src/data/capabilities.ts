@@ -3,67 +3,67 @@ import { CapabilityItem } from '../types';
 export const CAPABILITIES: CapabilityItem[] = [
   {
     number: "01",
-    title: "AI Products & Cognitive Engines",
-    tagline: "From fine-tuned reasoning loops to intuitive generative user experiences.",
-    description: "Architecting end-to-end AI applications leveraging multi-agent orchestration, hybrid RAG pipelines, streaming inference, structured schema validation, and context memory caching.",
+    title: "Agentic AI & Stateful RAG Workflows",
+    tagline: "Autonomous multi-step LLM graphs, local vector stores & similarity retrieval.",
+    description: "Architecting end-to-end Generative AI applications leveraging LangGraph stateful cyclic DAGs, recursive document chunking, ChromaDB vector indexing, and low-latency similarity retrieval pipelines.",
     coreStrengths: [
-      "Multi-Agent DAG Workflows & Dynamic Tool Calling",
-      "Hybrid Semantic & BM25 Vector Retrieval (Qdrant, Pinecone, pgvector)",
-      "Streaming Low-Latency LLM UX with Optimistic UI States",
-      "Model Evaluation, Guardrails, & Automated Regression Suites"
+      "LangGraph Stateful Cyclic Graphs & Agent Memory Loops",
+      "RAG Document Ingestion, Recursive Chunking & Embeddings",
+      "ChromaDB Embedded Vector Retrieval (Sub-50ms)",
+      "Strict Schema Validation with Pydantic & Tool Abstractions"
     ],
-    technologies: ["LangChain", "LlamaIndex", "Qdrant", "PyTorch", "FastAPI", "OpenAI / Anthropic APIs"]
+    technologies: ["Python", "LangChain", "LangGraph", "ChromaDB", "FastAPI", "OpenAI / LLM APIs"]
   },
   {
     number: "02",
-    title: "Full-Stack Web Applications",
-    tagline: "Resilient, responsive, and beautifully crafted software systems.",
-    description: "Building production web applications from ground up with obsessive attention to state management, optimistic updates, database indexing, edge caching, and pixel-level ergonomics.",
+    title: "Computer Vision & Real-Time Analytics",
+    tagline: "Live video processing, object detection, gaze analysis & anti-spoof verification.",
+    description: "Building production computer vision pipelines using Python, OpenCV, and YOLO capable of concurrent facial recognition, activity detection, MediaPipe gaze vector tracking, and anti-spoofing heuristics.",
     coreStrengths: [
-      "Modern React / Next.js Architecture with Server Components",
-      "Type-Safe End-to-End APIs (tRPC, GraphQL, REST, gRPC)",
-      "Real-Time Collaborative Multi-User State Synchronizations",
-      "Sub-16ms Framerate UI & Micro-Interaction Design"
+      "Real-Time Multi-Stream Frame Ingestion (OpenCV & RTSP)",
+      "YOLOv8 Multi-Class Object & Activity Detection",
+      "MediaPipe Facial Mesh, Landmark & Gaze Tracking",
+      "dlib Liveness Verification & Anti-Spoof Protection"
     ],
-    technologies: ["React", "TypeScript", "Next.js", "Node.js", "Tailwind CSS", "PostgreSQL", "Redis"]
+    technologies: ["Python", "OpenCV", "YOLO", "MediaPipe", "dlib", "face_recognition", "Flask"]
   },
   {
     number: "03",
-    title: "Intelligent Automation & Agent Systems",
-    tagline: "Autonomous workflows that execute complex multi-step digital operations.",
-    description: "Developing robust background worker networks and automated intelligence pipelines that ingest unstructured data, run symbolic transformations, and trigger deterministic real-world actions.",
+    title: "Python Backend & Microservice Architecture",
+    tagline: "Asynchronous APIs, background workers, alert throttling & WebSocket feeds.",
+    description: "Developing robust, asynchronous backend services using FastAPI and Flask. Engineered with Pydantic schemas, background worker queues with notification cooldown throttling, and low-latency database connectivity.",
     coreStrengths: [
-      "AST Code Parsing & Automated Syntax Transformations (Tree-sitter)",
-      "Distributed Task Queues & Event-Driven Message Brokers",
-      "Browser & System Automation with Sandboxed Execution",
-      "Self-Healing Error Recovery & Automated Retries"
+      "Async FastAPI & Flask REST API Microservices",
+      "Background Alert Handling with Intelligent Cooldown Throttling",
+      "Bidirectional WebSocket Feeds & Realtime State Sync",
+      "Authentication, RBAC & Enterprise API Security"
     ],
-    technologies: ["Python", "Rust", "Tree-sitter", "Celery", "RabbitMQ", "Docker", "WASM"]
+    technologies: ["Python", "FastAPI", "Flask", "Pydantic", "WebSockets", "Firebase", "Docker"]
   },
   {
     number: "04",
-    title: "Backend & Distributed Systems",
-    tagline: "High-throughput, fault-tolerant infrastructure built to scale gracefully.",
-    description: "Designing cloud-native microservices, custom protocol gateways, SIMD-accelerated data algorithms, and low-latency storage layers engineered for high-concurrency workloads.",
+    title: "Full-Stack Web Development & GIS Spatial Systems",
+    tagline: "Modern React frontends, spatial database queries & multi-tier administrative portals.",
+    description: "Engineering responsive full-stack applications with React, TypeScript, and Tailwind CSS. Specializing in connecting spatial GIS map coordinates with PostgreSQL databases and multi-role administrative workflows.",
     coreStrengths: [
-      "Concurrent Microservices in Go, Rust, and Node.js",
-      "High-Performance In-Memory Caching & Distributed Locks",
-      "Custom WebRTC / WebSocket Realtime Audio & Data Gateways",
-      "Zero-Downtime Database Migrations & Observability Telemetry"
+      "Modern React 19 Single Page Applications with TypeScript",
+      "Spatial GIS Mapping & Coordinate Geotagging Integrations",
+      "Multi-Tier Workflows for Citizens, Authorities & Admins",
+      "Mobile-First Responsive UI with Hardware-Accelerated CSS"
     ],
-    technologies: ["Go", "Rust", "PostgreSQL", "Redis", "gRPC", "Docker", "Kubernetes", "Prometheus"]
+    technologies: ["React", "TypeScript", "Tailwind CSS", "PostgreSQL", "GIS/Mapping APIs", "HTML5/CSS3"]
   },
   {
     number: "05",
-    title: "Interactive 3D & Creative WebGL",
-    tagline: "Digital art direction merged with GPU-accelerated computing.",
-    description: "Crafting memorable spatial interfaces, custom GLSL shaders, particle simulations, and dynamic interactive 3D elements that elevate digital products into unforgettable brand experiences.",
+    title: "Databases, Data Structures & Cloud Infrastructure",
+    tagline: "Relational persistence, vector stores, Docker containerization & Git CI/CD.",
+    description: "Designing structured relational schemas in PostgreSQL and MySQL, document stores in MongoDB and Firebase, and deploying containerized services with Docker, Git version control, and Postman testing suites.",
     coreStrengths: [
-      "Custom GLSL Vertex & Fragment Shader Development",
-      "Performant Procedural 3D Mesh Generation & Particle Systems",
-      "Physics-Based Kinetic Typography & Scroll-Tied Motion",
-      "Adaptive Mobile Level-of-Detail (LOD) & GPU Memory Management"
+      "Relational Schema Design & Optimization (PostgreSQL, MySQL)",
+      "Real-time Document Sync with Firebase & MongoDB",
+      "Strong Foundations in DSA & Object-Oriented Programming (Java/Python)",
+      "Docker Containerization, VS Code Tooling & Postman API Testing"
     ],
-    technologies: ["Three.js", "WebGL", "GLSL", "React Three Fiber", "GSAP ScrollTrigger", "Framer Motion"]
+    technologies: ["PostgreSQL", "MySQL", "MongoDB", "Firebase", "Docker", "Git", "Java", "Postman"]
   }
 ];

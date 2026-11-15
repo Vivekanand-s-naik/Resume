@@ -541,9 +541,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenContact }) => {
         <div className="flex items-center gap-3">
           <span className="text-neutral-300 font-semibold">[01.4 // CORE_STACK]</span>
           <span className="hidden sm:inline">
-            LANGGRAPH &bull; FASTAPI &bull; TYPESCRIPT &bull; PYTHON &bull; REACT &bull; THREE.JS &bull; POSTGRES &bull; REDIS
+            LANGGRAPH &bull; LANGCHAIN &bull; CHROMADB &bull; YOLO &bull; OPENCV &bull; FASTAPI &bull; REACT &bull; POSTGRESQL
           </span>
-          <span className="sm:hidden">LANGGRAPH &bull; TYPESCRIPT &bull; PYTHON</span>
+          <span className="sm:hidden">LANGGRAPH &bull; RAG &bull; YOLO &bull; FASTAPI</span>
         </div>
 
         <button

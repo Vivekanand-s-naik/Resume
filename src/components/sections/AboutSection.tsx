@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 import { PROFILE } from '../../data/profile';
+import { GraduationCap, Award, Trophy } from 'lucide-react';
 
 interface CharacterProps {
   char: string;
@@ -111,6 +112,96 @@ export const AboutSection: React.FC = () => {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Education, Certifications & Achievements Section */}
+        <div className="mt-16 pt-12 border-t border-[#262A30]/80 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Education Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="p-7 rounded-[28px] bg-[#101217] border border-[#262A30] space-y-5"
+          >
+            <div className="flex items-center gap-3 pb-3 border-b border-[#262A30]">
+              <div className="p-2 rounded-xl bg-[#00FF66]/10 text-[#00FF66]">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-xs font-mono text-[#00FF66] uppercase tracking-wider block">ACADEMIC BACKGROUND</span>
+                <h4 className="text-lg font-bold text-white uppercase tracking-tight">EDUCATION</h4>
+              </div>
+            </div>
+            <div className="space-y-4 font-mono">
+              {PROFILE.education.map((edu, idx) => (
+                <div key={idx} className="p-4 rounded-xl bg-[#0A0B0E] border border-[#262A30]/60 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-white font-bold">{edu.degree}</span>
+                    <span className="text-[#00FF66] font-bold text-[11px] px-2 py-0.5 rounded bg-[#00FF66]/10 border border-[#00FF66]/20">
+                      {edu.grade}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#8E9AA4] font-sans font-light">{edu.institution}</p>
+                  <span className="text-[10px] text-[#5A646E] uppercase tracking-wider block">{edu.period}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Certifications Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="p-7 rounded-[28px] bg-[#101217] border border-[#262A30] space-y-5"
+          >
+            <div className="flex items-center gap-3 pb-3 border-b border-[#262A30]">
+              <div className="p-2 rounded-xl bg-[#00FF66]/10 text-[#00FF66]">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-xs font-mono text-[#00FF66] uppercase tracking-wider block">VERIFIED CREDENTIALS</span>
+                <h4 className="text-lg font-bold text-white uppercase tracking-tight">CERTIFICATIONS</h4>
+              </div>
+            </div>
+            <div className="space-y-3 font-mono">
+              {PROFILE.certifications.map((cert, idx) => (
+                <div key={idx} className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0A0B0E] border border-[#262A30]/60">
+                  <span className="w-2 h-2 rounded-full bg-[#00FF66] shrink-0" />
+                  <span className="text-xs text-[#D7E2EA] font-medium leading-relaxed">{cert}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Achievements Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="p-7 rounded-[28px] bg-[#101217] border border-[#262A30] space-y-5"
+          >
+            <div className="flex items-center gap-3 pb-3 border-b border-[#262A30]">
+              <div className="p-2 rounded-xl bg-[#00FF66]/10 text-[#00FF66]">
+                <Trophy className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-xs font-mono text-[#00FF66] uppercase tracking-wider block">RECOGNITION &amp; IMPACT</span>
+                <h4 className="text-lg font-bold text-white uppercase tracking-tight">ACHIEVEMENTS</h4>
+              </div>
+            </div>
+            <div className="space-y-3 font-mono">
+              {PROFILE.achievements.map((ach, idx) => (
+                <div key={idx} className="flex items-start gap-3 p-3.5 rounded-xl bg-[#0A0B0E] border border-[#262A30]/60">
+                  <span className="text-xs text-[#00FF66] font-bold shrink-0 mt-0.5">0{idx + 1}</span>
+                  <span className="text-xs text-[#D7E2EA] font-sans font-light leading-relaxed">{ach}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

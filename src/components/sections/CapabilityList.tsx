@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CAPABILITIES } from '../../data/capabilities';
 import { Plus, Minus, CheckCircle2 } from 'lucide-react';
 
@@ -75,45 +75,47 @@ export const CapabilityList: React.FC = () => {
                 </button>
 
                 {/* Expanded Architectural Content */}
-                {isExpanded && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-                    className="px-4 sm:px-6 pb-10 pt-2"
-                  >
-                    <div className="p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] bg-[#090A0D] border border-[#262A30] grid grid-cols-1 lg:grid-cols-12 gap-8">
-                      <div className="lg:col-span-5 space-y-4">
-                        <div className="text-xs font-mono uppercase tracking-wider text-[#00FF66]">
-                          Architectural Scope
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                      className="px-4 sm:px-6 pb-10 pt-2 overflow-hidden"
+                    >
+                      <div className="p-6 sm:p-8 rounded-[24px] sm:rounded-[32px] bg-[#090A0D] border border-[#262A30] grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div className="lg:col-span-5 space-y-4">
+                          <div className="text-xs font-mono uppercase tracking-wider text-[#00FF66]">
+                            Architectural Scope
+                          </div>
+                          <p className="text-sm sm:text-base text-[#D7E2EA] font-light leading-relaxed">
+                            {cap.description}
+                          </p>
                         </div>
-                        <p className="text-sm sm:text-base text-[#D7E2EA] font-light leading-relaxed">
-                          {cap.description}
-                        </p>
-                      </div>
 
-                      <div className="lg:col-span-7 space-y-4">
-                        <div className="text-xs font-mono uppercase tracking-wider text-white">
-                          Key Invariants &amp; Strengths
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {cap.coreStrengths.map((strength, sIdx) => (
-                            <div
-                              key={sIdx}
-                              className="flex items-start gap-2.5 p-3 rounded-xl bg-[#12141A] border border-[#262A30]/80"
-                            >
-                              <CheckCircle2 className="w-4 h-4 text-[#00FF66] shrink-0 mt-0.5" />
-                              <span className="text-xs text-[#D7E2EA] font-mono leading-tight">
-                                {strength}
-                              </span>
-                            </div>
-                          ))}
+                        <div className="lg:col-span-7 space-y-4">
+                          <div className="text-xs font-mono uppercase tracking-wider text-white">
+                            Key Invariants &amp; Strengths
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {cap.coreStrengths.map((strength, sIdx) => (
+                              <div
+                                key={sIdx}
+                                className="flex items-start gap-2.5 p-3 rounded-xl bg-[#12141A] border border-[#262A30]/80"
+                              >
+                                <CheckCircle2 className="w-4 h-4 text-[#00FF66] shrink-0 mt-0.5" />
+                                <span className="text-xs text-[#D7E2EA] font-mono leading-tight">
+                                  {strength}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}

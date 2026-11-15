@@ -58,8 +58,8 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({ type, clas
         pos[i * 3 + 2] = (Math.random() - 0.5) * 2;
 
         cols[i * 3] = 0.0;
-        cols[i * 3 + 1] = 0.8 + Math.random() * 0.2; // Cyan tone
-        cols[i * 3 + 2] = 1.0;
+        cols[i * 3 + 1] = 0.9 + Math.random() * 0.1; // Green tone
+        cols[i * 3 + 2] = 0.35 * Math.random();
       }
 
       geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
