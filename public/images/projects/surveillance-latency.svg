@@ -14,6 +14,6 @@
   <circle cx="480" cy="165" r="5" fill="#00FF66"/>
   <text x="480" y="145" fill="#00FF66" font-family="monospace" font-size="11" text-anchor="middle">AVG: 28ms (35.7 FPS)</text>
   <rect x="40" y="325" width="520" height="40" fill="#14171C" stroke="rgba(255,255,255,0.1)" rx="4"/>
-  <text x="60" y="350" fill="#8E9AA4" font-family="monospace" font-size="11">YOLO BATCH PIPELINE &bull; GPU/CPU OPENCV HARDWARE ACCELERATION</text>
+  <text x="60" y="350" fill="#8E9AA4" font-family="monospace" font-size="11">YOLO BATCH PIPELINE &#8226; GPU/CPU OPENCV HARDWARE ACCELERATION</text>
   <circle cx="530" cy="345" r="4" fill="#00FF66"/>
 </svg>

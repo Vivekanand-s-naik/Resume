@@ -18,8 +18,8 @@ export const PROJECTS: Project[] = [
     backendStack: "Python, FastAPI, Flask, LangChain, LangGraph, ChromaDB, Pydantic, REST APIs.",
     technologies: ["Python", "LangChain", "LangGraph", "RAG", "ChromaDB", "FastAPI", "Flask", "React", "TypeScript"],
     metrics: "Sub-50ms vector similarity lookup, zero context drift across multi-step agent loops, and automated document chunking.",
-    liveUrl: "https://github.com/Vivekanand-s-naik",
-    githubUrl: "https://github.com/Vivekanand-s-naik",
+    liveUrl: "https://github.com/Vivekanand-s-naik/ParallaxAI",
+    githubUrl: "https://github.com/Vivekanand-s-naik/ParallaxAI",
     images: {
       leftTop: "/images/projects/parallax-topology.svg",
       leftBottom: "/images/projects/parallax-latency.svg",
@@ -43,8 +43,8 @@ export const PROJECTS: Project[] = [
     backendStack: "Python, OpenCV, MediaPipe, dlib, face_recognition, YOLO, Flask, FastAPI, Firebase.",
     technologies: ["Python", "OpenCV", "MediaPipe", "dlib", "face_recognition", "YOLO", "FastAPI", "Flask", "Firebase"],
     metrics: "30+ FPS live multi-stream video inference with intelligent notification cooldown preventing alert fatigue.",
-    liveUrl: "https://github.com/Vivekanand-s-naik",
-    githubUrl: "https://github.com/Vivekanand-s-naik",
+    liveUrl: "https://github.com/Vivekanand-s-naik/PROJECT-VISION-REBUILD",
+    githubUrl: "https://github.com/Vivekanand-s-naik/PROJECT-VISION-REBUILD",
     images: {
       leftTop: "/images/projects/surveillance-topology.svg",
       leftBottom: "/images/projects/surveillance-latency.svg",
@@ -68,8 +68,8 @@ export const PROJECTS: Project[] = [
     backendStack: "Python, YOLO, OpenCV, FastAPI, Flask, PostgreSQL, SQLAlchemy, REST APIs.",
     technologies: ["Python", "YOLO", "OpenCV", "FastAPI", "Flask", "PostgreSQL", "React", "GIS/Mapping APIs", "TypeScript"],
     metrics: "Automated 100% of image issue classifications with instant GPS tagging and streamlined resolution routing across 3 administrative tiers.",
-    liveUrl: "https://github.com/Vivekanand-s-naik",
-    githubUrl: "https://github.com/Vivekanand-s-naik",
+    liveUrl: "https://github.com/Vivekanand-s-naik/civiceye-1",
+    githubUrl: "https://github.com/Vivekanand-s-naik/civiceye-1",
     images: {
       leftTop: "/images/projects/civiceye-topology.svg",
       leftBottom: "/images/projects/civiceye-latency.svg",

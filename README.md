@@ -19,7 +19,7 @@
 - **Framerate Target**: Sub-16ms Framerate (60 FPS P99)
 - **Direct Transmission**: [vivekanandnaik333@gmail.com](mailto:vivekanandnaik333@gmail.com)
 - **GitHub**: [github.com/Vivekanand-s-naik](https://github.com/Vivekanand-s-naik)
-- **LinkedIn**: [linkedin.com/in/Vivekanand-naik](https://www.linkedin.com/in/Vivekanand-naik)
+- **LinkedIn**: [linkedin.com/in/vivekanand-s-naik-codersparadise](https://www.linkedin.com/in/vivekanand-s-naik-codersparadise/)
 
 ---
 

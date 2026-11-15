@@ -3,21 +3,22 @@ import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 import { PROFILE } from '../../data/profile';
 import { GraduationCap, Award, Trophy } from 'lucide-react';
 
-interface CharacterProps {
-  char: string;
+interface WordProps {
+  word: string;
   progress: MotionValue<number>;
   range: [number, number];
 }
 
-const Character: React.FC<CharacterProps> = ({ char, progress, range }) => {
-  // Strictly clamp range to [0, 1] to avoid Web Animations API offset errors
-  const start = Math.max(0, Math.min(0.98, range[0]));
-  const end = Math.max(start + 0.005, Math.min(1.0, range[1]));
+const Word: React.FC<WordProps> = ({ word, progress, range }) => {
+  // Strictly clamp range to [0, 1] to guarantee Web Animations API compliance
+  const start = Math.max(0, Math.min(0.92, range[0]));
+  const end = Math.max(start + 0.05, Math.min(1.0, range[1]));
+  const mid = start + (end - start) * 0.45;
 
-  const opacity = useTransform(progress, [start, end], [0.15, 1]);
-  const color = useTransform(progress, [start, end], ['#5A646E', '#FFFFFF']);
-  const y = useTransform(progress, [start, end], [8, 0]);
-  const scale = useTransform(progress, [start, end], [0.95, 1]);
+  // Kinetic color wave: Dim Gray -> Emerald Green Flash -> Locked White
+  const opacity = useTransform(progress, [start, end], [0.22, 1]);
+  const color = useTransform(progress, [start, mid, end], ['#4A5560', '#00FF66', '#FFFFFF']);
+  const y = useTransform(progress, [start, end], [4, 0]);
 
   return (
     <motion.span
@@ -25,62 +26,69 @@ const Character: React.FC<CharacterProps> = ({ char, progress, range }) => {
         opacity,
         color,
         y,
-        scale,
         transition: 'none'
       }}
-      className="inline-block"
+      className="inline-block whitespace-nowrap mr-[0.25em] font-bold select-text"
     >
-      {char === ' ' ? '\u00A0' : char}
+      {word}
     </motion.span>
   );
 };
 
 export const AboutSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const paragraphRef = useRef<HTMLDivElement>(null);
   const text = PROFILE.aboutParagraph;
-  const characters = text.split('');
+  const words = text.split(' ');
 
+  // Direct screen-level synchronization:
+  // Starts illuminating as the paragraph enters view (85% from top),
+  // and reaches 100% full brightness as it scrolls through the focal reading level (35% from top).
   const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
+    target: paragraphRef,
+    offset: ['start 0.85', 'end 0.35'],
   });
 
   return (
     <section
       id="about"
       ref={containerRef}
-      className="relative w-full py-32 sm:py-44 px-4 sm:px-6 md:px-10 bg-[#0C0C0C] border-t border-[#262A30]/50 overflow-hidden"
+      className="relative w-full py-24 sm:py-36 px-4 sm:px-6 md:px-10 bg-[#0C0C0C] border-t border-[#262A30]/50 overflow-hidden"
     >
       <div className="max-w-[1500px] mx-auto w-full">
         {/* Section Header */}
-        <div className="flex items-center justify-between pb-8 editorial-border-b mb-16">
-          <span className="font-mono text-xs uppercase tracking-widest text-white font-medium">
+        <div className="flex items-center justify-between pb-8 editorial-border-b mb-12 sm:mb-16">
+          <span className="font-mono text-xs uppercase tracking-widest text-[#00FF66] font-medium flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#00FF66] animate-pulse" />
             [02 // PERSPECTIVE &amp; PHILOSOPHY]
           </span>
-          <span className="font-mono text-xs uppercase tracking-widest text-[#8E9AA4]">
+          <span className="font-mono text-xs uppercase tracking-widest text-[#8E9AA4] hidden sm:inline-block">
             STATEFUL WORKFLOWS → DISTRIBUTED ARCHITECTURE
           </span>
         </div>
 
         {/* Big Editorial Heading */}
-        <div className="mb-12">
+        <div className="mb-8 sm:mb-12">
           <h2 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight text-[#8E9AA4]">
             ABOUT ME
           </h2>
+          <div className="text-xs font-mono text-[#00FF66]/80 uppercase tracking-wider mt-2 flex items-center gap-2">
+            <span>● SCREEN-SYNCED KINETIC SPECIFICATION</span>
+          </div>
         </div>
 
-        {/* Scroll Character-by-Character Animated Paragraph */}
-        <div className="max-w-5xl my-8">
-          <p className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold uppercase tracking-tight leading-[1.15] flex flex-wrap select-none [word-spacing:0.15em]">
-            {characters.map((char, i) => {
-              const total = Math.max(1, characters.length);
-              // Distribute across 80% of scroll range; guarantees range stays strictly within [0, 0.85]
-              const start = (i / total) * 0.80;
-              const end = Math.min(0.99, start + 0.04);
+        {/* Scroll Word-by-Word Animated Paragraph synced to screen level */}
+        <div ref={paragraphRef} className="max-w-5xl my-6 sm:my-10">
+          <p className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-tight leading-[1.3] sm:leading-[1.2] flex flex-wrap select-text">
+            {words.map((word, i) => {
+              const total = Math.max(1, words.length);
+              // Distribute smoothly across scroll window so words light up in sync with screen position
+              const start = (i / total) * 0.85;
+              const end = Math.min(1.0, start + 0.12);
               return (
-                <Character
+                <Word
                   key={i}
-                  char={char}
+                  word={word}
                   progress={scrollYProgress}
                   range={[start, end]}
                 />
