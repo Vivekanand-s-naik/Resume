@@ -7,20 +7,17 @@ interface CharacterProps {
   char: string;
   progress: MotionValue<number>;
   range: [number, number];
-  index: number;
 }
 
-const Character: React.FC<CharacterProps> = ({ char, progress, range, index }) => {
-  // Add slight delay for each character based on index
-  const adjustedRange: [number, number] = [
-    range[0] + index * 0.001,
-    range[1] + index * 0.001
-  ];
+const Character: React.FC<CharacterProps> = ({ char, progress, range }) => {
+  // Strictly clamp range to [0, 1] to avoid Web Animations API offset errors
+  const start = Math.max(0, Math.min(0.98, range[0]));
+  const end = Math.max(start + 0.005, Math.min(1.0, range[1]));
 
-  const opacity = useTransform(progress, adjustedRange, [0.15, 1]);
-  const color = useTransform(progress, adjustedRange, ['#5A646E', '#FFFFFF']);
-  const y = useTransform(progress, adjustedRange, [8, 0]);
-  const scale = useTransform(progress, adjustedRange, [0.95, 1]);
+  const opacity = useTransform(progress, [start, end], [0.15, 1]);
+  const color = useTransform(progress, [start, end], ['#5A646E', '#FFFFFF']);
+  const y = useTransform(progress, [start, end], [8, 0]);
+  const scale = useTransform(progress, [start, end], [0.95, 1]);
 
   return (
     <motion.span
@@ -76,17 +73,16 @@ export const AboutSection: React.FC = () => {
         <div className="max-w-5xl my-8">
           <p className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold uppercase tracking-tight leading-[1.15] flex flex-wrap select-none [word-spacing:0.15em]">
             {characters.map((char, i) => {
-              const total = characters.length;
-              // Distribute across 75% of scroll for smoother animation
-              const start = (i / total) * 0.75;
-              const end = ((i + 1) / total) * 0.75 + 0.02;
+              const total = Math.max(1, characters.length);
+              // Distribute across 80% of scroll range; guarantees range stays strictly within [0, 0.85]
+              const start = (i / total) * 0.80;
+              const end = Math.min(0.99, start + 0.04);
               return (
                 <Character
                   key={i}
                   char={char}
                   progress={scrollYProgress}
                   range={[start, end]}
-                  index={i}
                 />
               );
             })}
