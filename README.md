@@ -20,6 +20,7 @@ Demo - https://viveknaik.vercel.app/
 - **Direct Transmission**: [vivekanandnaik333@gmail.com](mailto:vivekanandnaik333@gmail.com)
 - **GitHub**: [github.com/Vivekanand-s-naik](https://github.com/Vivekanand-s-naik)
 - **LinkedIn**: [linkedin.com/in/vivekanand-s-naik-codersparadise](https://www.linkedin.com/in/vivekanand-s-naik-codersparadise/)
+<img width="1917" height="916" alt="image" src="https://github.com/user-attachments/assets/b5f2acc9-7507-4d13-b573-d2c8f71d7311" />
 
 ---
 
